@@ -6,7 +6,7 @@ def display_unibar_specific_settings(uni):
     st.subheader(":gray" + "[" + uni + "]", divider=True)
     type = get_uni_type(uni)
 
-    st.text(f"{uni} is a {type} unibar.")
+    st.badge(type)
 
     custom_value_order = st.checkbox("Custom label order?", key=f"value_order_{uni}")
     if custom_value_order and type == "numeric":
@@ -95,12 +95,14 @@ else:
             hi_var = st.selectbox(label="Select the unibar to highlight", options=list(st.session_state.df))
             col1, col2 = st.columns([1, 1])
             with col1:
-                hi_options = ["specific labels", "expression (regex/range)"]
-                hi_type = st.radio("Highlight type", hi_options)
+                subcols = st.columns(2)
+                hi_options = ["specific labels", "expression"]
+                hi_type = subcols[0].radio("Highlight type", hi_options)
+                hi_box = subcols[1].radio("Highlight box", options=["side-by-side", "stacked"])
                 if hi_type == hi_options[0]: # highlighting specific labels
                     hi_value = st.multiselect(label="Select labels to highlight", options=st.session_state.df[hi_var].unique())
                 else:
-                    hi_value = st.text_input(label="Expression to highlight")
+                    hi_value = st.text_input(label="Expression (regex/range) to highlight")
                     if hi_value != "" and not validate_expression(hi_value):
                         st.error("Must provide a valid expression (regex/range)")
                 if missing:
@@ -140,10 +142,10 @@ else:
         for uni in same_scale:
             if same_scale_type != get_uni_type(uni):
                 st.error("Variables in same_scale must either all be numerical or all be categorical")
-        if "violin" in st.session_state.numerical_display_type.values():
-            violin_bw_method = st.selectbox(label="violin plot bw method", options=["scott", "silverman", "custom float"])
-            if violin_bw_method == "custom float":
-                violin_bw_method = st.number_input("custom float", min_value=0, value=0.5, step=0.1)
+        cols = st.columns(2)
+        violin_bw_method = cols[0].selectbox(label="violin plot bw method", options=["scott", "silverman", "custom float"])
+        if violin_bw_method == "custom float":
+            violin_bw_method = cols[1].number_input("custom float", min_value=0.0, value=0.5, step=0.1)
 
         num_rows = len(unibars) // 3 + 1
         grid = [st.columns(3) for row in range(num_rows)]
@@ -153,6 +155,38 @@ else:
             square = grid[row][col]
             with square:
                 display_unibar_specific_settings(unibars[i])
+        
+        # -------- PLOT GRAPH -----------
+        if st.button("**Plot Hammock!**", type="primary", use_container_width=True):
+            plot(
+                var=unibars,
+                value_order=st.session_state.value_order,
+                numerical_var_levels=st.session_state.numerical_var_levels,
+                numerical_display_type=st.session_state.numerical_display_type,
+                missing=missing,
+                missing_placeholder=missing_placeholder if missing else None,
+                label=label,
+                unibar=unibar,
+
+                hi_var=hi_var if highlight else None,
+                hi_value=hi_value if highlight else None,
+                hi_box=("vertical" if hi_box == "side-by-side" else "horizontal") if highlight else None,
+                hi_missing=hi_missing if highlight else False,
+                colors=hi_colors if highlight else [],
+                default_color=default_color,
+                uni_fraction=uni_fraction,
+                connector_fraction=connector_fraction,
+                space=space,
+                label_options=st.session_state.label_options,
+                height=height,
+                width=width,
+                min_bar_height=min_bar_height,
+                alpha=alpha,
+                shape=shape,
+                same_scale=same_scale,
+                violin_bw_method=violin_bw_method,
+            )
+
     else:
         st.markdown(":gray[Select unibars to proceed]")
         

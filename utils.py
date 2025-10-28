@@ -4,9 +4,68 @@ import re
 import hammock_plot
 import pandas as pd
 
-def plot():
+def plot(# General
+            var,
+            value_order,
+            numerical_var_levels,
+            numerical_display_type,
+            missing,
+            missing_placeholder,
+            label,
+            unibar,
+
+            # Highlighting
+            hi_var,
+            hi_value,
+            hi_box,
+            hi_missing,
+            colors,
+            default_color,
+
+            # Layout
+            uni_fraction,
+            connector_fraction, 
+            space, 
+            label_options,
+            height,
+            width,
+            min_bar_height,
+            alpha,
+
+            # Other
+            shape,
+            same_scale,
+            violin_bw_method):
     hammock = hammock_plot.Hammock(data_df=st.session_state.df)
-    ax = None # replace later
+    ax = hammock.plot(
+        var=var,
+        value_order=value_order,
+        numerical_var_levels=numerical_var_levels,
+        numerical_display_type=numerical_display_type,
+        missing=missing,
+        missing_placeholder=missing_placeholder,
+        label=label,
+        unibar=unibar,
+        hi_var=hi_var,
+        hi_value=hi_value,
+        hi_box=hi_box,
+        hi_missing=hi_missing,
+        colors=colors,
+        default_color=default_color,
+        uni_fraction=uni_fraction,
+        # connector_fraction=connector_fraction, # not up to date with the current package
+        space=space,
+        label_options=label_options,
+        height=height,
+        width=width,
+        alpha=alpha,
+        min_bar_height=min_bar_height,
+        shape=shape,
+        same_scale=same_scale,
+        display_figure=True,
+        save_path=None,
+        # violin_bw_method=violin_bw_method, # not up to date with the current package
+    )
     st.session_state.fig = ax.get_figure()
 
 def prep_data_for_download():

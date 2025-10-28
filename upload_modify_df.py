@@ -28,6 +28,8 @@ def replace_column_values():
         st.session_state.df[col] = st.session_state.df[col].replace(old_name, new_name)
         st.rerun()
 
+st.header("Upload/Modify Your Data")
+
 if "df" not in st.session_state:
     uploaded_file = st.file_uploader(
         label="Upload your data to get started",
@@ -41,29 +43,31 @@ if "df" not in st.session_state:
         st.session_state.df = df
         st.rerun()
 else:
-    st.badge("Tools", icon=":material/build:", color="grey")
-
-    if st.button("Rename Column"):
-        rename_column()
-
-    if st.button("Replace Labels"):
-        replace_column_values()
-
     st.dataframe(st.session_state.df)
 
-    col1, col2, col3 = st.columns([1, 1, 3])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
+
+    if col1.button("Rename Column", use_container_width=True):
+        rename_column()
+
+    if col2.button("Replace Labels", use_container_width=True):
+        replace_column_values()
 
     # allow user to clear data
-    with col1:
+    with col3:
         st.download_button(
             label="Save Local",
             data=st.session_state.df.to_csv().encode("utf-8"),
             file_name="hammock-plot-data.csv",
             mime="text/csv",
             icon=":material/download:",
+            use_container_width=True,
         )
 
-    with col2:
-        if st.button("Clear data"):
+    with col4:
+        if st.button("Clear data", use_container_width=True):
             del st.session_state["df"]
             st.rerun()
+    
+    if st.button("Continue to hammock settings", type="primary"):
+        st.switch_page("hammock_settings.py")

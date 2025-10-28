@@ -54,6 +54,10 @@ if "df" not in st.session_state:
 else:
     st.header("Hammock Plot Settings")
     st.write("View the Hammock plot documentation [here](%s)" % "https://github.com/TianchengY/hammock_plot/blob/main/README.md")
+
+    st.sidebar.subheader("Your data")
+    st.sidebar.dataframe(st.session_state.df, hide_index=True) # put the dataframe in the sidebar
+
     st.subheader("General Settings")
 
     unibars = st.multiselect(label = "Which unibars do you want to plot?", options=list(st.session_state.df))

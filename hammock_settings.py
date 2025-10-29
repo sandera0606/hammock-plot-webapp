@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import Defaults, plot, prep_data_for_download, validate_expression, get_uni_type
+from utils import Defaults, plot, validate_expression, get_uni_type
 import ast
 
 def display_unibar_specific_settings(uni):
@@ -198,8 +198,6 @@ else:
     if "fig" in st.session_state:
         st.header("Your plot")
         st.pyplot(st.session_state.fig) # display fig in streamlit
-        if "buf" not in st.session_state:
-            prep_data_for_download()
         st.download_button(
             label="Download as PNG",
             data=st.session_state.buf,

@@ -4,6 +4,12 @@ import re
 import hammock_plot
 import pandas as pd
 
+def prep_data_for_download():
+    buf = io.BytesIO()
+    st.session_state.fig.savefig(buf, format="png", bbox_inches="tight")
+    buf.seek(0)
+    st.session_state.buf = buf
+
 def plot(# General
             var,
             value_order,
@@ -69,14 +75,9 @@ def plot(# General
             # violin_bw_method=violin_bw_method, # not up to date with the current package
         )
         st.session_state.fig = ax.get_figure()
+        prep_data_for_download()
     except Exception as e:
         st.error(str(e))
-
-def prep_data_for_download():
-    buf = io.BytesIO()
-    st.session_state.fig.savefig(buf, format="png", bbox_inches="tight")
-    buf.seek(0)
-    st.session_state.buf = buf
 
 class Defaults:
     HEIGHT = 10.0

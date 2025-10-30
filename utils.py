@@ -3,6 +3,7 @@ import streamlit as st
 import re
 import hammock_plot
 import pandas as pd
+import numpy as np
 
 def prep_data_for_download():
     buf = io.BytesIO()
@@ -168,3 +169,33 @@ def get_uni_type(uni):
         return "categorical"
     else:
         raise RuntimeError("Invalid dtype detected - logic error in code. dtype: ", dtype)
+
+def get_formatted_label(datatype, value):
+    # if the label is a string
+    if datatype == np.str_:
+        return value
+    # otherwise, it should be a numerical value
+    value = float(value)
+    if abs(value) >= 1000000 or 0 < abs(value) < 0.01: # threshold for displaying scientific notation
+        return f"{value:.2e}"
+    if datatype == np.integer:
+        return str(int(value))
+    if datatype == np.floating:
+        return f"{value:.2f}" # round to 2 decimal places
+
+def get_formatted_values(raw_values):
+    dtype = raw_values.dtype
+    if pd.api.types.is_integer_dtype(dtype):
+        dtype = np.integer
+    elif pd.api.types.is_float_dtype(dtype):
+        dtype = np.floating
+        if (raw_values == raw_values.astype(int)).all():
+            dtype = np.integer
+        else:
+            dtype = np.floating
+    elif pd.api.types.is_categorical_dtype(dtype) or pd.api.types.is_string_dtype(dtype):
+        dtype = np.str_
+    else:
+        raise RuntimeError("Invalid dtype detected - logic error in code. dtype: ", dtype)
+
+    return [get_formatted_label(dtype, value) for value in raw_values]

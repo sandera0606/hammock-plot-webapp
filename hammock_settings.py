@@ -1,6 +1,6 @@
 import streamlit as st
 
-from utils import Defaults, plot, validate_expression, get_uni_type, set_default_settings, set_snapshot_settings
+from utils import Defaults, plot, validate_expression, get_uni_type, set_default_settings, set_snapshot_settings, get_formatted_values
 import ast
 
 def display_unibar_specific_settings(uni):
@@ -15,7 +15,7 @@ def display_unibar_specific_settings(uni):
         type = "categorical"
     
     if custom_value_order:
-        options = st.session_state.df[uni].unique()
+        options = get_formatted_values(st.session_state.df[uni].unique())
         value_order = st.multiselect(label="Custom label order", options=options)
 
         if len(value_order) < len(options):

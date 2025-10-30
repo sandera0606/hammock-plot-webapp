@@ -5,6 +5,8 @@ from utils import (
     plot,
     validate_expression,
     get_uni_type,
+    set_snapshot_settings,
+    set_default_settings,
     get_formatted_values,
 )
 import ast

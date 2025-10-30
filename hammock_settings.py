@@ -12,8 +12,7 @@ from utils import (
 import ast
 
 def display_unibar_specific_settings(uni):
-    uni = uni.replace("\n", " ")
-    st.subheader(":gray" + "[" + uni + "]", divider=True)
+    st.subheader(":gray" + "[" + uni.replace("\n", " ") + "]", divider=True)
     type = get_uni_type(uni)
 
     st.badge(type)

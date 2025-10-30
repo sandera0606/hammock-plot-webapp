@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import Defaults, plot, validate_expression, get_uni_type
+from utils import Defaults, plot, validate_expression, get_uni_type, set_default_settings, set_snapshot_settings
 import ast
 
 def display_unibar_specific_settings(uni):
@@ -23,7 +23,7 @@ def display_unibar_specific_settings(uni):
         st.session_state.value_order[uni] = value_order
     
     if type == "numeric":
-        display_type = st.selectbox(label="display type", options=["rugplot", "box", "violin"], key=f"display_type_{uni}")
+        display_type = st.selectbox(label="display type", options=["box", "rugplot", "violin"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")
         if display_type == "rugplot":
             use_custom_levels = st.checkbox(label="Custom label levels?", key=f"custom_levels_{uni}")
             if use_custom_levels:
@@ -58,40 +58,45 @@ else:
     st.sidebar.subheader("Your data")
     st.sidebar.dataframe(st.session_state.df, hide_index=True) # put the dataframe in the sidebar
 
-    st.subheader("General Settings")
-
     unibars = st.multiselect(label = "Which unibars do you want to plot?", options=list(st.session_state.df))
     
-
-    col1, col2 = st.columns([1, 1])
-    with col1:
-        subcol1, subcol2 = st.columns([1, 1])
-        height = subcol1.number_input(label="Height", value=Defaults.HEIGHT, step=0.5)
-        width = subcol2.number_input(label="Width of the plot", value=Defaults.WIDTH, step=0.5)
-
-        subcol1, subcol2 = st.columns([1, 1])
-        default_color = subcol1.color_picker(label="Default colour", value=Defaults.DEFAULT_COLOR)
-        alpha = subcol2.slider(label="Opacity", value=Defaults.ALPHA, min_value=0.0, max_value=1.0)
-
-        subcol1, subcol2 = st.columns([1, 1])
-        label = subcol2.checkbox(label="Display labels?", value=True)
-        unibar = subcol2.checkbox(label="Display unibars?", value=True)
-        
-        missing = subcol1.checkbox(label="Display missing values?")
-        if missing:
-            missing_placeholder = subcol1.text_input(label="Missing value placeholder", value="missing")
-        
-    
-    with col2:
-        min_bar_height = st.number_input(label="Minimum bar height", value=Defaults.MIN_BAR_HEIGHT)
-        subcol1, subcol2 = st.columns([1, 1])
-        uni_fraction = subcol1.slider(label="Unibar Vertical Fill", min_value=0.0, max_value=1.0, value=Defaults.UNI_FRACTION)
-        space = subcol2.slider(label="Unibar Horizontal Fill", min_value=0.0, max_value=1.0, value=Defaults.SPACE)
-        connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0.0, max_value=1.0)
-        shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
-    
-    
     if unibars:
+        st.subheader("Preset Setting Options")
+        cols = st.columns(6)
+        if cols[0].button("Default"):
+            set_default_settings()
+        if cols[1].button("Snapshot"):
+            set_snapshot_settings()
+
+        # ------------ GENERAL SETTINGS ----------------------
+        st.subheader("General Settings")
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            subcol1, subcol2 = st.columns([1, 1])
+            height = subcol1.number_input(label="Height", value=Defaults.HEIGHT, step=0.5)
+            width = subcol2.number_input(label="Width of the plot", value=Defaults.WIDTH, step=0.5)
+
+            subcol1, subcol2 = st.columns([1, 1])
+            default_color = subcol1.color_picker(label="Default colour", value=Defaults.DEFAULT_COLOR)
+            alpha = subcol2.slider(label="Opacity", value=Defaults.ALPHA, min_value=0.0, max_value=1.0)
+
+            subcol1, subcol2 = st.columns([1, 1])
+            label = subcol2.checkbox(label="Display labels?", value=True)
+            unibar = subcol2.checkbox(label="Display unibars?", value=True)
+            
+            missing = subcol1.checkbox(label="Display missing values?")
+            if missing:
+                missing_placeholder = subcol1.text_input(label="Missing value placeholder", value="missing")
+            
+        
+        with col2:
+            min_bar_height = st.number_input(label="Minimum bar height", value=Defaults.MIN_BAR_HEIGHT)
+            subcol1, subcol2 = st.columns([1, 1])
+            uni_fraction = subcol1.slider(label="Unibar Vertical Fill", min_value=0.0, max_value=1.0, value=Defaults.UNI_FRACTION)
+            space = subcol2.slider(label="Unibar Horizontal Fill", min_value=0.0, max_value=1.0, value=Defaults.SPACE)
+            connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0.0, max_value=1.0)
+            shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
+            
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")
         highlight = st.checkbox("Enable highlighting?")
@@ -147,7 +152,7 @@ else:
             if same_scale_type != get_uni_type(uni):
                 st.error("Variables in same_scale must either all be numerical or all be categorical")
         cols = st.columns(2)
-        violin_bw_method = cols[0].selectbox(label="violin plot bw method", options=["scott", "silverman", "custom float"])
+        violin_bw_method = cols[0].selectbox(label="violin plot bw method [(see matplotlib documentation)](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.violinplot.html)", options=["scott", "silverman", "custom float"])
         if violin_bw_method == "custom float":
             violin_bw_method = cols[1].number_input("custom float", min_value=0.0, value=0.5, step=0.1)
 
@@ -196,6 +201,10 @@ else:
         
 
     if "fig" in st.session_state:
+        if not unibars:
+            del st.session_state["fig"]
+            del st.session_state["buf"]
+            st.rerun()
         st.header("Your plot")
         st.pyplot(st.session_state.fig) # display fig in streamlit
         st.download_button(

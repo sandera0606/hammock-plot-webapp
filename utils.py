@@ -89,6 +89,25 @@ class Defaults:
     HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
     ALPHA=0.7
     MIN_BAR_HEIGHT: float = 0.15
+    DISPLAY_TYPE_INDEX: int = 0
+
+def set_default_settings():
+    Defaults.HEIGHT = 10.0
+    Defaults.WIDTH = 15.0
+    Defaults.UNI_FRACTION = 0.08
+    Defaults.SPACE = 0.3
+    Defaults.CONNECTOR_FRACTION = 1.0
+    Defaults.DEFAULT_COLOR="#a6cee3"
+    Defaults.HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
+    Defaults.ALPHA=0.7
+    Defaults.MIN_BAR_HEIGHT = 0.15
+    st.rerun()
+
+def set_snapshot_settings():
+    Defaults.UNI_FRACTION = 0.90
+    Defaults.SPACE = 0.90
+    Defaults.CONNECTOR_FRACTION = 0.0
+    st.rerun()
 
 def clean_expression(expr: str) -> str:
     """

@@ -107,6 +107,9 @@ else:
             uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
             connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
             shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
+        
+        if uni_vfill > 0.5 and missing:
+            st.warning("Warning: when uni_vfill is high and missing=True, display may not be as expected.")
             
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")

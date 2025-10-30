@@ -1,4 +1,5 @@
 import streamlit as st
+
 from utils import Defaults, plot, validate_expression, get_uni_type, set_default_settings, set_snapshot_settings
 import ast
 
@@ -65,8 +66,10 @@ else:
         cols = st.columns(6)
         if cols[0].button("Default"):
             set_default_settings()
+            st.rerun()
         if cols[1].button("Snapshot"):
             set_snapshot_settings()
+            st.rerun()
 
         # ------------ GENERAL SETTINGS ----------------------
         st.subheader("General Settings")
@@ -78,7 +81,7 @@ else:
 
             subcol1, subcol2 = st.columns([1, 1])
             default_color = subcol1.color_picker(label="Default colour", value=Defaults.DEFAULT_COLOR)
-            alpha = subcol2.slider(label="Opacity", value=Defaults.ALPHA, min_value=0.0, max_value=1.0)
+            alpha = subcol2.slider(label="Opacity", value=Defaults.ALPHA, min_value=0, max_value=100, format="%d%%") / 100
 
             subcol1, subcol2 = st.columns([1, 1])
             label = subcol2.checkbox(label="Display labels?", value=True)
@@ -92,9 +95,9 @@ else:
         with col2:
             min_bar_height = st.number_input(label="Minimum bar height", value=Defaults.MIN_BAR_HEIGHT)
             subcol1, subcol2 = st.columns([1, 1])
-            uni_fraction = subcol1.slider(label="Unibar Vertical Fill", min_value=0.0, max_value=1.0, value=Defaults.UNI_FRACTION)
-            space = subcol2.slider(label="Unibar Horizontal Fill", min_value=0.0, max_value=1.0, value=Defaults.SPACE)
-            connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0.0, max_value=1.0)
+            uni_vfill = subcol1.slider(label="Unibar Vertical Fill", min_value=0, max_value=100, value=Defaults.uni_vfill,format="%d%%") / 100
+            uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
+            connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
             shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
             
         # ------ HIGHLIGHT SETTINGS ---------
@@ -179,13 +182,13 @@ else:
 
                 hi_var=hi_var if highlight else None,
                 hi_value=hi_value if highlight else None,
-                hi_box=("vertical" if hi_box == "side-by-side" else "horizontal") if highlight else None,
+                hi_box=hi_box if highlight else None,
                 hi_missing=hi_missing if highlight else False,
                 colors=hi_colors if highlight else [],
                 default_color=default_color,
-                uni_fraction=uni_fraction,
+                uni_vfill=uni_vfill,
                 connector_fraction=connector_fraction,
-                space=space,
+                uni_hfill=uni_hfill,
                 label_options=st.session_state.label_options,
                 height=height,
                 width=width,

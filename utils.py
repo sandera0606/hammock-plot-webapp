@@ -29,9 +29,9 @@ def plot(# General
             default_color,
 
             # Layout
-            uni_fraction,
+            uni_vfill,
             connector_fraction, 
-            space, 
+            uni_hfill, 
             label_options,
             height,
             width,
@@ -60,9 +60,9 @@ def plot(# General
             hi_missing=hi_missing,
             colors=colors,
             default_color=default_color,
-            uni_fraction=uni_fraction,
-            # connector_fraction=connector_fraction, # not up to date with the current package
-            space=space,
+            uni_vfill=uni_vfill,
+            connector_fraction=connector_fraction,
+            uni_hfill=uni_hfill,
             label_options=label_options,
             height=height,
             width=width,
@@ -72,7 +72,7 @@ def plot(# General
             same_scale=same_scale,
             display_figure=True,
             save_path=None,
-            # violin_bw_method=violin_bw_method, # not up to date with the current package
+            violin_bw_method=violin_bw_method,
         )
         st.session_state.fig = ax.get_figure()
         prep_data_for_download()
@@ -82,32 +82,30 @@ def plot(# General
 class Defaults:
     HEIGHT = 10.0
     WIDTH = 15.0
-    UNI_FRACTION = 0.08
-    SPACE = 0.3
-    CONNECTOR_FRACTION = 1.0
+    uni_vfill = 8
+    uni_hfill = 30
+    CONNECTOR_FRACTION = 100
     DEFAULT_COLOR="#a6cee3"
     HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
-    ALPHA=0.7
+    ALPHA=70
     MIN_BAR_HEIGHT: float = 0.15
     DISPLAY_TYPE_INDEX: int = 0
 
 def set_default_settings():
     Defaults.HEIGHT = 10.0
     Defaults.WIDTH = 15.0
-    Defaults.UNI_FRACTION = 0.08
-    Defaults.SPACE = 0.3
-    Defaults.CONNECTOR_FRACTION = 1.0
+    Defaults.uni_vfill = 8
+    Defaults.uni_hfill = 30
+    Defaults.CONNECTOR_FRACTION = 100
     Defaults.DEFAULT_COLOR="#a6cee3"
     Defaults.HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
-    Defaults.ALPHA=0.7
+    Defaults.ALPHA=70
     Defaults.MIN_BAR_HEIGHT = 0.15
-    st.rerun()
 
 def set_snapshot_settings():
-    Defaults.UNI_FRACTION = 0.90
-    Defaults.SPACE = 0.90
-    Defaults.CONNECTOR_FRACTION = 0.0
-    st.rerun()
+    Defaults.uni_vfill = 90
+    Defaults.uni_hfill = 90
+    Defaults.CONNECTOR_FRACTION = 0
 
 def clean_expression(expr: str) -> str:
     """

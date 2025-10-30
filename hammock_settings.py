@@ -1,6 +1,12 @@
 import streamlit as st
 
-from utils import Defaults, plot, validate_expression, get_uni_type, set_default_settings, set_snapshot_settings, get_formatted_values
+from utils import (
+    Defaults,
+    plot,
+    validate_expression,
+    get_uni_type,
+    get_formatted_values,
+)
 import ast
 
 def display_unibar_specific_settings(uni):

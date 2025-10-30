@@ -195,7 +195,5 @@ def get_formatted_values(raw_values):
             dtype = np.floating
     elif pd.api.types.is_categorical_dtype(dtype) or pd.api.types.is_string_dtype(dtype):
         dtype = np.str_
-    else:
-        raise RuntimeError("Invalid dtype detected - logic error in code. dtype: ", dtype)
-
+    
     return [get_formatted_label(dtype, value) for value in raw_values]

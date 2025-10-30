@@ -108,9 +108,11 @@ else:
             connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
             shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
         
-        if uni_vfill > 0.5 and missing:
-            st.warning("Warning: when uni_vfill is high and missing=True, display may not be as expected.")
-            
+        cols = st.columns([1, 3])
+        with cols[1]:
+            if uni_vfill > 0.5 and missing:
+                st.warning("Warning: when uni_vfill is high and missing=True, display may not be as expected.")
+                
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")
         highlight = st.checkbox("Enable highlighting?")

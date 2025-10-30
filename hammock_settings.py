@@ -12,6 +12,7 @@ from utils import (
 import ast
 
 def display_unibar_specific_settings(uni):
+    uni = uni.replace("\n", " ")
     st.subheader(":gray" + "[" + uni + "]", divider=True)
     type = get_uni_type(uni)
 

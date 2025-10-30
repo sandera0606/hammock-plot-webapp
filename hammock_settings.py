@@ -72,7 +72,7 @@ else:
     if unibars:
         st.subheader("Preset Setting Options")
         cols = st.columns(6)
-        if cols[0].button("Default"):
+        if cols[0].button("Default (Hammock)"):
             set_default_settings()
             st.rerun()
         if cols[1].button("Snapshot"):

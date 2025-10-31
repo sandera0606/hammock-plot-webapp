@@ -1,4 +1,5 @@
 import streamlit as st
+import numpy as np
 
 from utils import (
     Defaults,
@@ -16,15 +17,23 @@ def display_unibar_specific_settings(uni):
     type = get_uni_type(uni)
 
     st.badge(type)
+    values = st.session_state.df[uni].unique()
 
-    custom_value_order = st.checkbox("Custom label order?", key=f"value_order_{uni}")
+    # treat values that are just 0 and 1 as categorical by default
+    default_value_order = False
+    desired_value_order = []
+    if type == "numeric" and (np.array_equal(values, [0, 1]) or np.array_equal(values, [1, 0])):
+        default_value_order = True
+        desired_value_order = ["0", "1"]
+
+    custom_value_order = st.checkbox("Custom label order?", key=f"value_order_{uni}", value=default_value_order)
     if custom_value_order and type == "numeric":
         st.warning("Warning: numeric variables will be treated as categorical variables")
         type = "categorical"
     
     if custom_value_order:
         options = get_formatted_values(st.session_state.df[uni].unique())
-        value_order = st.multiselect(label="Custom label order", options=options)
+        value_order = st.multiselect(label="Custom label order", options=options, default=desired_value_order)
 
         if len(value_order) < len(options):
             st.error("Select all options to proceed.")
@@ -85,7 +94,7 @@ else:
         with col1:
             subcol1, subcol2 = st.columns([1, 1])
             height = subcol1.number_input(label="Height", value=Defaults.HEIGHT, step=0.5)
-            width = subcol2.number_input(label="Width of the plot", value=Defaults.WIDTH, step=0.5)
+            width = subcol2.number_input(label="Width of the plot", value=max(Defaults.WIDTH, len(unibars) * 4/3), step=0.5)
 
             subcol1, subcol2 = st.columns([1, 1])
             default_color = subcol1.color_picker(label="Default colour", value=Defaults.DEFAULT_COLOR)
@@ -107,9 +116,6 @@ else:
             uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
             connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
             shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
-        
-        if uni_vfill > 0.5 and missing:
-            st.warning("Warning: when uni_vfill is high and missing=True, display may not be as expected.")
                 
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")

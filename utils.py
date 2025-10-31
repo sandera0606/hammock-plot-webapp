@@ -104,7 +104,7 @@ def set_default_settings():
     Defaults.MIN_BAR_HEIGHT = 0.15
 
 def set_snapshot_settings():
-    Defaults.uni_vfill = 90
+    Defaults.uni_vfill = 99
     Defaults.uni_hfill = 90
     Defaults.CONNECTOR_FRACTION = 0
 

@@ -42,11 +42,10 @@ def display_unibar_specific_settings(uni):
     
     if type == "numeric":
         display_type = st.selectbox(label="display type", options=["box", "rugplot", "violin"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")
-        if display_type == "rugplot":
-            use_custom_levels = st.checkbox(label="Custom label levels?", key=f"custom_levels_{uni}")
-            if use_custom_levels:
-                levels = st.number_input(label="Num. levels (0 for None)", min_value=0, step=1, value=7, key=f"number_input_{uni}")
-                st.session_state.numerical_var_levels[uni] = levels
+        use_custom_levels = st.checkbox(label="Custom label levels?", key=f"custom_levels_{uni}")
+        if use_custom_levels:
+            levels = st.number_input(label="Num. levels (0 for None)", min_value=0, step=1, value=7, key=f"number_input_{uni}")
+            st.session_state.numerical_var_levels[uni] = levels
         st.session_state.numerical_display_type[uni] = display_type
     
     custom_labels = st.checkbox(label="Custom label options?", key=f"label_options_{uni}")

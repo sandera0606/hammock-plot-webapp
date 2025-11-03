@@ -32,6 +32,7 @@ def plot(# General
             # Layout
             uni_vfill,
             connector_fraction, 
+            connector_color,
             uni_hfill, 
             label_options,
             height,
@@ -63,6 +64,7 @@ def plot(# General
             default_color=default_color,
             uni_vfill=uni_vfill,
             connector_fraction=connector_fraction,
+            connector_color=connector_color,
             uni_hfill=uni_hfill,
             label_options=label_options,
             height=height,

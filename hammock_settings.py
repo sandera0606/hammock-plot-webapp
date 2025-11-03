@@ -17,7 +17,7 @@ def display_unibar_specific_settings(uni):
     type = get_uni_type(uni)
 
     st.badge(type)
-    values = st.session_state.df[uni].unique()
+    values = st.session_state.df[uni].dropna().unique()
 
     # treat values that are just 0 and 1 as categorical by default
     default_value_order = False
@@ -32,7 +32,7 @@ def display_unibar_specific_settings(uni):
         type = "categorical"
     
     if custom_value_order:
-        options = get_formatted_values(st.session_state.df[uni].unique())
+        options = get_formatted_values(values)
         value_order = st.multiselect(label="Custom label order", options=options, default=desired_value_order)
 
         if len(value_order) < len(options):
@@ -114,8 +114,10 @@ else:
             uni_vfill = subcol1.slider(label="Unibar Vertical Fill", min_value=0, max_value=100, value=Defaults.uni_vfill,format="%d%%") / 100
             uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
             connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
+            custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", value=False)
             shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
-                
+            connector_color = None if not custom_connector_color else subcol2.color_picker(label="Connector color", value=Defaults.DEFAULT_COLOR)
+
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")
         highlight = st.checkbox("Enable highlighting?")
@@ -128,7 +130,7 @@ else:
                 hi_type = subcols[0].radio("Highlight type", hi_options)
                 hi_box = subcols[1].radio("Highlight box", options=["side-by-side", "stacked"])
                 if hi_type == hi_options[0]: # highlighting specific labels
-                    hi_value = st.multiselect(label="Select labels to highlight", options=st.session_state.df[hi_var].unique())
+                    hi_value = st.multiselect(label="Select labels to highlight", options=(st.session_state.df[hi_var].dropna().unique()))
                 else:
                     hi_value = st.text_input(label="Expression (regex/range) to highlight")
                     if hi_value != "" and not validate_expression(hi_value):
@@ -204,6 +206,7 @@ else:
                 default_color=default_color,
                 uni_vfill=uni_vfill,
                 connector_fraction=connector_fraction,
+                connector_color = connector_color,
                 uni_hfill=uni_hfill,
                 label_options=st.session_state.label_options,
                 height=height,

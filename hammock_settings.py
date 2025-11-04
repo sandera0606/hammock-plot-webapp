@@ -12,6 +12,9 @@ from utils import (
 )
 import ast
 
+if "reset_counter" not in st.session_state:
+    st.session_state.reset_counter = 0
+
 def display_unibar_specific_settings(uni):
     st.subheader(":gray" + "[" + uni.replace("\n", " ") + "]", divider=True)
     type = get_uni_type(uni)
@@ -82,21 +85,25 @@ else:
         cols = st.columns(6)
         if cols[0].button("Hammock"):
             set_default_settings()
-            st.rerun()
+            # st.session_state.reset_presets = True
+            # st.rerun()
+
         if cols[1].button("Snapshot"):
             set_snapshot_settings()
-            st.rerun()
+            # st.session_state.reset_presets = True
+            # st.rerun()
+
 
         # ------------ GENERAL SETTINGS ----------------------
         st.subheader("General Settings")
         col1, col2 = st.columns([1, 1])
         with col1:
             subcol1, subcol2 = st.columns([1, 1])
-            height = subcol1.number_input(label="Height", value=Defaults.HEIGHT, step=0.5)
-            width = subcol2.number_input(label="Width of the plot", value=max(Defaults.WIDTH, len(unibars) * 4/3), step=0.5)
+            height = subcol1.number_input(label="Height", value=Defaults.HEIGHT, step=0.5, key=f"height_{st.session_state.reset_counter}")
+            width = subcol2.number_input(label="Width of the plot", value=max(Defaults.WIDTH, len(unibars) * 4/3), step=0.5, key=f"width_{st.session_state.reset_counter}")
 
             subcol1, subcol2 = st.columns([1, 1])
-            default_color = subcol1.color_picker(label="Default colour", value=Defaults.DEFAULT_COLOR)
+            default_color = subcol1.color_picker(label="Default colour", value=Defaults.DEFAULT_COLOR, key=f"default_color_{st.session_state.reset_counter}")
             alpha = subcol2.slider(label="Opacity", value=Defaults.ALPHA, min_value=0, max_value=100, format="%d%%") / 100
 
             subcol1, subcol2 = st.columns([1, 1])
@@ -109,14 +116,14 @@ else:
             
         
         with col2:
-            min_bar_height = st.number_input(label="Minimum bar height", value=Defaults.MIN_BAR_HEIGHT)
+            min_bar_height = st.number_input(label="Minimum bar height", value=Defaults.MIN_BAR_HEIGHT, key=f"min_bar_height_{st.session_state.reset_counter}")
             subcol1, subcol2 = st.columns([1, 1])
-            uni_vfill = subcol1.slider(label="Unibar Vertical Fill", min_value=0, max_value=100, value=Defaults.uni_vfill,format="%d%%") / 100
-            uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
-            connector_fraction = subcol1.slider(label="Connector Fraction", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
-            custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", value=False)
-            shape = subcol2.selectbox(label="Connector Shape", options=["rectangle", "parallelogram"])
-            connector_color = None if not custom_connector_color else subcol2.color_picker(label="Connector color", value=Defaults.DEFAULT_COLOR)
+            uni_vfill = subcol1.slider(label="Unibar Vertical Fill", key=f"uni_vfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=Defaults.uni_vfill,format="%d%%") / 100
+            uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", key=f"uni_hfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
+            connector_fraction = subcol1.slider(label="Connector Fraction", key=f"connect_frac_{st.session_state.reset_counter}", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
+            custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", key=f"custom_connect_color_{st.session_state.reset_counter}", value=False)
+            shape = subcol2.selectbox(label="Connector Shape", key=f"shape_{st.session_state.reset_counter}", options=["rectangle", "parallelogram"])
+            connector_color = None if not custom_connector_color else subcol2.color_picker(label="Connector color", value=Defaults.DEFAULT_COLOR, key=f"connect_color_{st.session_state.reset_counter}")
 
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")
@@ -127,7 +134,7 @@ else:
             with col1:
                 subcols = st.columns(2)
                 hi_options = ["specific labels", "expression"]
-                hi_type = subcols[0].radio("Highlight type", hi_options)
+                hi_type = subcols[0].radio("Highlight type", options=hi_options)
                 hi_box = subcols[1].radio("Highlight box", options=["side-by-side", "stacked"])
                 if hi_type == hi_options[0]: # highlighting specific labels
                     hi_value = st.multiselect(label="Select labels to highlight", options=(st.session_state.df[hi_var].dropna().unique()))
@@ -151,7 +158,8 @@ else:
                         hi_colors.append(
                             st.color_picker(
                                 label=f"Colour #{i+1}",
-                                value=Defaults.HI_COLORS[i] if i < len(Defaults.HI_COLORS) else "#00ff00"
+                                value=Defaults.HI_COLORS[i] if i < len(Defaults.HI_COLORS) else "#00ff00",
+                                key = f"hi_colors_{i}_{st.session_state.reset_counter}",
                             )
                         )
                 

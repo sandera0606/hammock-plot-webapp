@@ -95,6 +95,7 @@ class Defaults:
     DISPLAY_TYPE_INDEX: int = 0
 
 def set_default_settings():
+    st.session_state.reset_counter = 1 if st.session_state.reset_counter == 0 else 0
     Defaults.HEIGHT = 10.0
     Defaults.WIDTH = 15.0
     Defaults.uni_vfill = 8
@@ -104,11 +105,14 @@ def set_default_settings():
     Defaults.HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
     Defaults.ALPHA=70
     Defaults.MIN_BAR_HEIGHT = 0.15
+    st.rerun()
 
 def set_snapshot_settings():
+    st.session_state.reset_counter = 1 if st.session_state.reset_counter == 0 else 0
     Defaults.uni_vfill = 99
     Defaults.uni_hfill = 90
     Defaults.CONNECTOR_FRACTION = 0
+    st.rerun()
 
 def clean_expression(expr: str) -> str:
     """

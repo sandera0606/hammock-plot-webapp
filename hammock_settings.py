@@ -78,7 +78,7 @@ else:
     st.sidebar.subheader("Your data")
     st.sidebar.dataframe(st.session_state.df, hide_index=True) # put the dataframe in the sidebar
 
-    unibars = st.multiselect(label = "Which unibars do you want to plot?", options=list(st.session_state.df))
+    unibars = st.multiselect(label = "Which variables do you want to plot?", options=list(st.session_state.df))
     
     if unibars:
         st.subheader("Preset Setting Options")

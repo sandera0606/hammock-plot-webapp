@@ -129,7 +129,7 @@ else:
         st.subheader("Highlight Settings")
         highlight = st.checkbox("Enable highlighting?")
         if highlight:
-            hi_var = st.selectbox(label="Select the unibar to highlight", options=list(st.session_state.df))
+            hi_var = st.selectbox(label="Select the variable to highlight", options=list(st.session_state.df))
             col1, col2 = st.columns([1, 1])
             with col1:
                 subcols = st.columns(2)

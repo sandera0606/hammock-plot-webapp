@@ -79,6 +79,7 @@ else:
     st.sidebar.dataframe(st.session_state.df, hide_index=True) # put the dataframe in the sidebar
 
     unibars = st.multiselect(label = "Which variables do you want to plot?", options=list(st.session_state.df))
+    missing = st.checkbox(label="Plot missing values?")
     
     if unibars:
         st.header("Preset Setting Options")
@@ -97,43 +98,85 @@ else:
             # st.session_state.reset_presets = True
             # st.rerun()
 
+        # load default settings
+        height = Defaults.HEIGHT
+        width = max(Defaults.WIDTH, len(unibars) * 4/3)
+        default_color = Defaults.DEFAULT_COLOR
+        alpha = Defaults.ALPHA
+        label = True
+        unibar = True
+        missing_placeholder = "missing"
+        min_bar_height = Defaults.MIN_BAR_HEIGHT
+        uni_vfill = Defaults.uni_vfill
+        uni_hfill = Defaults.uni_hfill
+        connector_fraction = Defaults.CONNECTOR_FRACTION
+        shape = "rectangle"
+        connector_color = Defaults.DEFAULT_COLOR
+        same_scale = []
+        violin_bw_method = "scott"
+
+        # manage session_state variables
+        st.session_state.numerical_var_levels = {}
+        st.session_state.numerical_display_type = {}
+        st.session_state.label_options = {}
+        st.session_state.value_order = {}
+
         st.header("Advanced Settings")
-        
-        # ------------ GENERAL SETTINGS ----------------------
-        st.subheader("General")
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            subcol1, subcol2 = st.columns([1, 1])
-            height = subcol1.number_input(label="Height", value=Defaults.HEIGHT, step=0.5, key=f"height_{st.session_state.reset_counter}")
-            width = subcol2.number_input(label="Width of the plot", value=max(Defaults.WIDTH, len(unibars) * 4/3), step=0.5, key=f"width_{st.session_state.reset_counter}")
+        if st.checkbox("Enable Advanced Settings?"):
+            # ------------ GENERAL SETTINGS ----------------------
+            st.subheader("General")
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                subcol1, subcol2 = st.columns([1, 1])
+                height = subcol1.number_input(label="Height", value=height, step=0.5, key=f"height_{st.session_state.reset_counter}")
+                width = subcol2.number_input(label="Width of the plot", value=width, step=0.5, key=f"width_{st.session_state.reset_counter}")
 
-            subcol1, subcol2 = st.columns([1, 1])
-            default_color = subcol1.color_picker(label="Default colour", value=Defaults.DEFAULT_COLOR, key=f"default_color_{st.session_state.reset_counter}")
-            alpha = subcol2.slider(label="Opacity", value=Defaults.ALPHA, min_value=0, max_value=100, format="%d%%") / 100
+                subcol1, subcol2 = st.columns([1, 1])
+                default_color = subcol1.color_picker(label="Default colour", value=default_color, key=f"default_color_{st.session_state.reset_counter}")
+                alpha = subcol2.slider(label="Opacity", value=alpha, min_value=0, max_value=100, format="%d%%")
 
-            subcol1, subcol2 = st.columns([1, 1])
-            label = subcol2.checkbox(label="Display labels?", value=True)
-            unibar = subcol2.checkbox(label="Display unibars?", value=True)
+                subcol1, subcol2 = st.columns([1, 1])
+                label = subcol2.checkbox(label="Display labels?", value=label)
+                unibar = subcol2.checkbox(label="Display unibars?", value=unibar)
+                
+                missing = subcol1.checkbox(label="Display missing values?", value=missing)
+                if missing:
+                    missing_placeholder = subcol1.text_input(label="Missing value placeholder", value=missing_placeholder)
+                
             
-            missing = subcol1.checkbox(label="Display missing values?")
-            if missing:
-                missing_placeholder = subcol1.text_input(label="Missing value placeholder", value="missing")
+            with col2:
+                min_bar_height = st.number_input(label="Minimum bar height", value=min_bar_height, key=f"min_bar_height_{st.session_state.reset_counter}")
+                subcol1, subcol2 = st.columns([1, 1])
+                uni_vfill = subcol1.slider(label="Unibar Vertical Fill", key=f"uni_vfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=uni_vfill,format="%d%%")
+                uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", key=f"uni_hfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=uni_hfill,format="%d%%")
+                if st.session_state["mode"] != "snapshot":
+                    connector_fraction = subcol1.slider(label="Connector Fraction", key=f"connect_frac_{st.session_state.reset_counter}", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%")
+                    custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", key=f"custom_connect_color_{st.session_state.reset_counter}", value=False)
+                    shape = subcol2.selectbox(label="Connector Shape", key=f"shape_{st.session_state.reset_counter}", options=["rectangle", "parallelogram"])
+                    connector_color = connector_color if not custom_connector_color else subcol2.color_picker(label="Connector color", value=connector_color, key=f"connect_color_{st.session_state.reset_counter}")
             
-        
-        with col2:
-            min_bar_height = st.number_input(label="Minimum bar height", value=Defaults.MIN_BAR_HEIGHT, key=f"min_bar_height_{st.session_state.reset_counter}")
-            subcol1, subcol2 = st.columns([1, 1])
-            uni_vfill = subcol1.slider(label="Unibar Vertical Fill", key=f"uni_vfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=Defaults.uni_vfill,format="%d%%") / 100
-            uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", key=f"uni_hfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
-            if st.session_state["mode"] != "snapshot":
-                connector_fraction = subcol1.slider(label="Connector Fraction", key=f"connect_frac_{st.session_state.reset_counter}", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
-                custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", key=f"custom_connect_color_{st.session_state.reset_counter}", value=False)
-                shape = subcol2.selectbox(label="Connector Shape", key=f"shape_{st.session_state.reset_counter}", options=["rectangle", "parallelogram"])
-                connector_color = None if not custom_connector_color else subcol2.color_picker(label="Connector color", value=Defaults.DEFAULT_COLOR, key=f"connect_color_{st.session_state.reset_counter}")
-            else:
-                connector_fraction = Defaults.CONNECTOR_FRACTION
-                shape = "rectangle"
-                connector_color = Defaults.DEFAULT_COLOR
+            # ------ UNIBAR SPECIFIC SETTINGS ---------
+            st.subheader("Unibar-Specific")
+            
+
+            same_scale = st.multiselect(label="Variables to use same scale", options=unibars)
+            same_scale_type = get_uni_type(same_scale[0]) if same_scale else None
+            for uni in same_scale:
+                if same_scale_type != get_uni_type(uni):
+                    st.error("Variables in same_scale must either all be numerical or all be categorical")
+            cols = st.columns(2)
+            violin_bw_method = cols[0].selectbox(label="violin plot bw method [(see matplotlib documentation)](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.violinplot.html)", options=["scott", "silverman", "custom float"])
+            if violin_bw_method == "custom float":
+                violin_bw_method = cols[1].number_input("custom float", min_value=0.0, value=0.5, step=0.1)
+
+            num_rows = len(unibars) // 3 + 1
+            grid = [st.columns(3) for row in range(num_rows)]
+            for i in range(len(unibars)):
+                row = i // 3
+                col = i % 3
+                square = grid[row][col]
+                with square:
+                    display_unibar_specific_settings(unibars[i])
 
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")
@@ -176,33 +219,6 @@ else:
                 for color in hi_colors:
                     if color == default_color:
                         st.error("Warning! Default colour is same as a highlight colour")
-
-        # ------ UNIBAR SPECIFIC SETTINGS ---------
-        st.subheader("Unibar-Specific")
-        # manage session_state variables
-        st.session_state.numerical_var_levels = {}
-        st.session_state.numerical_display_type = {}
-        st.session_state.label_options = {}
-        st.session_state.value_order = {}
-
-        same_scale = st.multiselect(label="Variables to use same scale", options=unibars)
-        same_scale_type = get_uni_type(same_scale[0]) if same_scale else None
-        for uni in same_scale:
-            if same_scale_type != get_uni_type(uni):
-                st.error("Variables in same_scale must either all be numerical or all be categorical")
-        cols = st.columns(2)
-        violin_bw_method = cols[0].selectbox(label="violin plot bw method [(see matplotlib documentation)](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.violinplot.html)", options=["scott", "silverman", "custom float"])
-        if violin_bw_method == "custom float":
-            violin_bw_method = cols[1].number_input("custom float", min_value=0.0, value=0.5, step=0.1)
-
-        num_rows = len(unibars) // 3 + 1
-        grid = [st.columns(3) for row in range(num_rows)]
-        for i in range(len(unibars)):
-            row = i // 3
-            col = i % 3
-            square = grid[row][col]
-            with square:
-                display_unibar_specific_settings(unibars[i])
         
         # -------- PLOT GRAPH -----------
         if st.button("**Plot Hammock!**", type="primary", use_container_width=True):
@@ -223,15 +239,15 @@ else:
                     hi_missing=hi_missing if highlight else False,
                     colors=hi_colors if highlight else [],
                     default_color=default_color,
-                    uni_vfill=uni_vfill,
-                    connector_fraction=connector_fraction,
+                    uni_vfill=uni_vfill / 100,
+                    connector_fraction=connector_fraction / 100,
                     connector_color = connector_color,
-                    uni_hfill=uni_hfill,
+                    uni_hfill=uni_hfill / 100,
                     label_options=st.session_state.label_options,
                     height=height,
                     width=width,
                     min_bar_height=min_bar_height,
-                    alpha=alpha,
+                    alpha=alpha / 100,
                     shape=shape,
                     same_scale=same_scale,
                     violin_bw_method=violin_bw_method,

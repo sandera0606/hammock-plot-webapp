@@ -121,6 +121,16 @@ else:
         st.session_state.label_options = {}
         st.session_state.value_order = {}
 
+        # initialize numerical display type defaults
+        for uni in unibars:
+            type = get_uni_type(uni)
+            values = st.session_state.df[uni].dropna().unique()
+            if type == "numeric" and (np.array_equal(values, [0, 1]) or np.array_equal(values, [1, 0])):
+                st.session_state.value_order[uni] = ["0", "1"]
+            if type == "numeric":
+                st.session_state.numerical_display_type[uni] = "box"
+
+
         st.header("Advanced Settings")
         if st.checkbox("Enable Advanced Settings?"):
             # ------------ GENERAL SETTINGS ----------------------

@@ -206,36 +206,36 @@ else:
         
         # -------- PLOT GRAPH -----------
         if st.button("**Plot Hammock!**", type="primary", use_container_width=True):
-            plot(
-                var=unibars,
-                value_order=st.session_state.value_order,
-                numerical_var_levels=st.session_state.numerical_var_levels,
-                numerical_display_type=st.session_state.numerical_display_type,
-                missing=missing,
-                missing_placeholder=missing_placeholder if missing else None,
-                label=label,
-                unibar=unibar,
+            with st.spinner("Plotting hammock... this may take a while"):
+                plot(
+                    var=unibars,
+                    value_order=st.session_state.value_order,
+                    numerical_var_levels=st.session_state.numerical_var_levels,
+                    numerical_display_type=st.session_state.numerical_display_type,
+                    missing=missing,
+                    missing_placeholder=missing_placeholder if missing else None,
+                    label=label,
+                    unibar=unibar,
 
-                hi_var=hi_var if highlight else None,
-                hi_value=hi_value if highlight else None,
-                hi_box=hi_box if highlight else None,
-                hi_missing=hi_missing if highlight else False,
-                colors=hi_colors if highlight else [],
-                default_color=default_color,
-                uni_vfill=uni_vfill,
-                connector_fraction=connector_fraction,
-                connector_color = connector_color,
-                uni_hfill=uni_hfill,
-                label_options=st.session_state.label_options,
-                height=height,
-                width=width,
-                min_bar_height=min_bar_height,
-                alpha=alpha,
-                shape=shape,
-                same_scale=same_scale,
-                violin_bw_method=violin_bw_method,
-            )
-
+                    hi_var=hi_var if highlight else None,
+                    hi_value=hi_value if highlight else None,
+                    hi_box=hi_box if highlight else None,
+                    hi_missing=hi_missing if highlight else False,
+                    colors=hi_colors if highlight else [],
+                    default_color=default_color,
+                    uni_vfill=uni_vfill,
+                    connector_fraction=connector_fraction,
+                    connector_color = connector_color,
+                    uni_hfill=uni_hfill,
+                    label_options=st.session_state.label_options,
+                    height=height,
+                    width=width,
+                    min_bar_height=min_bar_height,
+                    alpha=alpha,
+                    shape=shape,
+                    same_scale=same_scale,
+                    violin_bw_method=violin_bw_method,
+                )
     else:
         st.markdown(":gray[Select unibars to proceed]")
         

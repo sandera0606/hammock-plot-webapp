@@ -82,20 +82,24 @@ else:
     
     if unibars:
         st.subheader("Preset Setting Options")
+        if "mode" not in st.session_state:
+            st.session_state.mode = "hammock"
         cols = st.columns(6)
-        if cols[0].button("Hammock"):
+        if cols[0].button("Hammock", type="primary" if st.session_state["mode"] == "hammock" else "secondary"):
+            st.session_state.mode = "hammock"
             set_default_settings()
             # st.session_state.reset_presets = True
             # st.rerun()
 
-        if cols[1].button("Snapshot"):
+        if cols[1].button("Snapshot", type="primary" if st.session_state["mode"] == "snapshot" else "secondary"):
+            st.session_state.mode = "snapshot"
             set_snapshot_settings()
             # st.session_state.reset_presets = True
             # st.rerun()
 
-
+        
         # ------------ GENERAL SETTINGS ----------------------
-        st.subheader("General Settings")
+        st.subheader("General")
         col1, col2 = st.columns([1, 1])
         with col1:
             subcol1, subcol2 = st.columns([1, 1])
@@ -120,10 +124,15 @@ else:
             subcol1, subcol2 = st.columns([1, 1])
             uni_vfill = subcol1.slider(label="Unibar Vertical Fill", key=f"uni_vfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=Defaults.uni_vfill,format="%d%%") / 100
             uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", key=f"uni_hfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=Defaults.uni_hfill,format="%d%%") / 100
-            connector_fraction = subcol1.slider(label="Connector Fraction", key=f"connect_frac_{st.session_state.reset_counter}", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
-            custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", key=f"custom_connect_color_{st.session_state.reset_counter}", value=False)
-            shape = subcol2.selectbox(label="Connector Shape", key=f"shape_{st.session_state.reset_counter}", options=["rectangle", "parallelogram"])
-            connector_color = None if not custom_connector_color else subcol2.color_picker(label="Connector color", value=Defaults.DEFAULT_COLOR, key=f"connect_color_{st.session_state.reset_counter}")
+            if st.session_state["mode"] != "snapshot":
+                connector_fraction = subcol1.slider(label="Connector Fraction", key=f"connect_frac_{st.session_state.reset_counter}", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%") / 100
+                custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", key=f"custom_connect_color_{st.session_state.reset_counter}", value=False)
+                shape = subcol2.selectbox(label="Connector Shape", key=f"shape_{st.session_state.reset_counter}", options=["rectangle", "parallelogram"])
+                connector_color = None if not custom_connector_color else subcol2.color_picker(label="Connector color", value=Defaults.DEFAULT_COLOR, key=f"connect_color_{st.session_state.reset_counter}")
+            else:
+                connector_fraction = Defaults.CONNECTOR_FRACTION
+                shape = "rectangle"
+                connector_color = Defaults.DEFAULT_COLOR
 
         # ------ HIGHLIGHT SETTINGS ---------
         st.subheader("Highlight Settings")

@@ -31,17 +31,22 @@ def replace_column_values():
 st.header("Upload/Modify Your Data")
 
 if "df" not in st.session_state:
-    uploaded_file = st.file_uploader(
-        label="Upload your data to get started",
-        type=["csv"] # add anything else that may be accepted (dta?)
-    )
-    if uploaded_file is not None:
-        # Read the CSV into a pandas DataFrame
-        df = pd.read_csv(uploaded_file)
-        
-        # Store the DataFrame in session_state
+    if st.button(label="Use [palmer penguins data](https://allisonhorst.github.io/palmerpenguins/)"):
+        df = pd.read_csv("./data/palmer_penguins.csv")
         st.session_state.df = df
         st.rerun()
+    else:
+        uploaded_file = st.file_uploader(
+            label="Upload your own data",
+            type=["csv"] # add anything else that may be accepted (dta?)
+        )
+        if uploaded_file is not None:
+            # Read the CSV into a pandas DataFrame
+            df = pd.read_csv(uploaded_file)
+            
+            # Store the DataFrame in session_state
+            st.session_state.df = df
+            st.rerun()
 else:
     st.dataframe(st.session_state.df)
 

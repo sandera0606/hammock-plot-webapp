@@ -72,7 +72,7 @@ if "df" not in st.session_state:
     if st.button("Go back"):
         st.switch_page("upload_modify_df.py")
 else:
-    st.header("Hammock Plot Settings")
+    st.title("Hammock Plot Settings")
     st.write("View the Hammock plot documentation [here](%s)" % "https://github.com/TianchengY/hammock_plot/blob/main/README.md")
 
     st.sidebar.subheader("Your data")
@@ -81,7 +81,7 @@ else:
     unibars = st.multiselect(label = "Which variables do you want to plot?", options=list(st.session_state.df))
     
     if unibars:
-        st.subheader("Preset Setting Options")
+        st.header("Preset Setting Options")
         if "mode" not in st.session_state:
             st.session_state.mode = "hammock"
         cols = st.columns(6)
@@ -97,6 +97,7 @@ else:
             # st.session_state.reset_presets = True
             # st.rerun()
 
+        st.header("Advanced Settings")
         
         # ------------ GENERAL SETTINGS ----------------------
         st.subheader("General")
@@ -177,7 +178,7 @@ else:
                         st.error("Warning! Default colour is same as a highlight colour")
 
         # ------ UNIBAR SPECIFIC SETTINGS ---------
-        st.subheader("Unibar-Specific Settings")
+        st.subheader("Unibar-Specific")
         # manage session_state variables
         st.session_state.numerical_var_levels = {}
         st.session_state.numerical_display_type = {}

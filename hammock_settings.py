@@ -16,7 +16,18 @@ if "reset_counter" not in st.session_state:
     st.session_state.reset_counter = 0
 
 def display_unibar_specific_settings(uni):
-    st.subheader(":gray" + "[" + uni.replace("\n", " ") + "]", divider=True)
+    st.markdown(
+        f"""
+        <h3 style="
+            text-decoration: underline;
+            color:#67a4c6ff;
+            margin-top: 0.5rem;
+        ">
+            {uni.replace(chr(10), ' ').replace('_', ' ')}
+        </h3>
+        """,
+        unsafe_allow_html=True
+    )
     type = get_uni_type(uni)
 
     st.badge(type)
@@ -36,7 +47,7 @@ def display_unibar_specific_settings(uni):
     
     if custom_value_order:
         options = get_formatted_values(values)
-        value_order = st.multiselect(label="Custom label order", options=options, default=desired_value_order)
+        value_order = st.multiselect(label="Custom label order", options=options, default=desired_value_order, help="Order of the values in the unibar, from bottom to top.")
 
         if len(value_order) < len(options):
             st.error("Select all options to proceed.")
@@ -111,7 +122,7 @@ else:
         uni_hfill = Defaults.uni_hfill
         connector_fraction = Defaults.CONNECTOR_FRACTION
         shape = "rectangle"
-        connector_color = Defaults.DEFAULT_COLOR
+        connector_color = None
         same_scale = []
         violin_bw_method = "scott"
 
@@ -132,43 +143,66 @@ else:
 
 
         st.header("Advanced Settings")
-        if st.checkbox("Enable Advanced Settings?"):
+        if st.checkbox("Enable Advanced Settings?", key=f"enable_advanced_{st.session_state.reset_counter}"):
             # ------------ GENERAL SETTINGS ----------------------
             st.subheader("General")
             col1, col2 = st.columns([1, 1])
             with col1:
                 subcol1, subcol2 = st.columns([1, 1])
-                height = subcol1.number_input(label="Height", value=height, step=0.5, key=f"height_{st.session_state.reset_counter}")
-                width = subcol2.number_input(label="Width of the plot", value=width, step=0.5, key=f"width_{st.session_state.reset_counter}")
+                height = subcol1.number_input(label="Height", value=height, step=0.5, key=f"height_{st.session_state.reset_counter}",
+                                              help="Height of the plot")
+                width = subcol2.number_input(label="Width", value=width, step=0.5, key=f"width_{st.session_state.reset_counter}",
+                                             help="Width of the plot")
 
                 subcol1, subcol2 = st.columns([1, 1])
-                default_color = subcol1.color_picker(label="Default colour", value=default_color, key=f"default_color_{st.session_state.reset_counter}")
+                default_color = subcol1.color_picker(label="Default colour", value=default_color, key=f"default_color_{st.session_state.reset_counter}",
+                                                     help="The default, unhighlighted colour of the plot")
                 alpha = subcol2.slider(label="Opacity", value=alpha, min_value=0, max_value=100, format="%d%%")
 
                 subcol1, subcol2 = st.columns([1, 1])
-                label = subcol2.checkbox(label="Display labels?", value=label)
-                unibar = subcol2.checkbox(label="Display unibars?", value=unibar)
+                label = subcol2.checkbox(label="Display labels?", value=label, help="Whether or not to display the text labels")
+                unibar = subcol2.checkbox(label="Display unibars?", value=unibar, help="Whether or not to display unibars")
+
+                if not label and not unibar:
+                    uni_hfill = 0
                 
-                missing = subcol1.checkbox(label="Display missing values?", value=missing)
                 if missing:
-                    missing_placeholder = subcol1.text_input(label="Missing value placeholder", value=missing_placeholder)
-                
+                    missing_placeholder = subcol1.text_input(label="Missing value label", value=missing_placeholder,
+                                                             help="The label for missing values")
             
             with col2:
-                min_bar_height = st.number_input(label="Minimum bar height", value=min_bar_height, key=f"min_bar_height_{st.session_state.reset_counter}")
+                min_bar_height = st.number_input(label="Minimum bar height",
+                                                 value=min_bar_height,
+                                                 key=f"min_bar_height_{st.session_state.reset_counter}",
+                                                 help="Bars representing only a tiny fraction of the data may be so narrow that they are invisible in a plot. This parameter ensures that no bars can be thinner than the minimum.")
                 subcol1, subcol2 = st.columns([1, 1])
-                uni_vfill = subcol1.slider(label="Unibar Vertical Fill", key=f"uni_vfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=uni_vfill,format="%d%%")
-                uni_hfill = subcol2.slider(label="Unibar Horizontal Fill", key=f"uni_hfill_{st.session_state.reset_counter}", min_value=0, max_value=100, value=uni_hfill,format="%d%%")
+                uni_vfill = subcol1.slider(label="Unibar Vertical Fill",
+                                           key=f"uni_vfill_{st.session_state.reset_counter}",
+                                           min_value=0, max_value=100,
+                                           value=uni_vfill, format="%d%%",
+                                           help="Fraction of vertical space that should be populated by data. Adjusts the height of the data points.")
+                uni_hfill = subcol2.slider(label="Unibar Horizontal Fill",
+                                           key=f"uni_hfill_{st.session_state.reset_counter}",
+                                           min_value=0, max_value=100, 
+                                           value=uni_hfill, format="%d%%",
+                                           help="Fraction of horizontal space allocated to labels/univ. bars rather than to connecting boxes.",
+                                           disabled=not(label or unibar))
                 if st.session_state["mode"] != "snapshot":
-                    connector_fraction = subcol1.slider(label="Connector Fraction", key=f"connect_frac_{st.session_state.reset_counter}", value=Defaults.CONNECTOR_FRACTION, min_value=0, max_value=100,format="%d%%")
+                    connector_fraction = subcol1.slider(label="Connector Fraction",
+                                                        key=f"connect_frac_{st.session_state.reset_counter}",
+                                                        value=connector_fraction,
+                                                        min_value=0, max_value=100,format="%d%%",
+                                                        help="Fraction of the uni_vfill height used for drawing connectors between unibars. Controls how tall the connectors are relative to the bar height.")
                     custom_connector_color = subcol1.checkbox(label="Separate Connector Color?", key=f"custom_connect_color_{st.session_state.reset_counter}", value=False)
-                    shape = subcol2.selectbox(label="Connector Shape", key=f"shape_{st.session_state.reset_counter}", options=["rectangle", "parallelogram"])
-                    connector_color = connector_color if not custom_connector_color else subcol2.color_picker(label="Connector color", value=connector_color, key=f"connect_color_{st.session_state.reset_counter}")
+                    shape = subcol2.selectbox(label="Connector Shape",
+                                              key=f"shape_{st.session_state.reset_counter}",
+                                              options=["rectangle", "parallelogram"],
+                                              help="Shape of the connectors.")
+                    connector_color = None if not custom_connector_color else subcol2.color_picker(label="Connector color", value=default_color, key=f"connect_color_{st.session_state.reset_counter}")
             
             # ------ UNIBAR SPECIFIC SETTINGS ---------
             st.subheader("Unibar-Specific")
             
-
             same_scale = st.multiselect(label="Variables to use same scale", options=unibars)
             same_scale_type = get_uni_type(same_scale[0]) if same_scale else None
             for uni in same_scale:
@@ -189,7 +223,7 @@ else:
                     display_unibar_specific_settings(unibars[i])
 
         # ------ HIGHLIGHT SETTINGS ---------
-        st.subheader("Highlight Settings")
+        st.header("Highlight Settings")
         highlight = st.checkbox("Enable highlighting?")
         if highlight:
             hi_var = st.selectbox(label="Select the variable to highlight", options=list(st.session_state.df))
@@ -202,7 +236,7 @@ else:
                 if hi_type == hi_options[0]: # highlighting specific labels
                     hi_value = st.multiselect(label="Select labels to highlight", options=(st.session_state.df[hi_var].dropna().unique()))
                 else:
-                    hi_value = st.text_input(label="Expression (regex/range) to highlight")
+                    hi_value = st.text_input(label="Expression (regex/range) to highlight", help="e.g. x>1 and (x>5 or x<4)")
                     if hi_value != "" and not validate_expression(hi_value):
                         st.error("Must provide a valid expression (regex/range)")
                 if missing:

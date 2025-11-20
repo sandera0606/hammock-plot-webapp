@@ -36,32 +36,45 @@ def display_unibar_specific_settings(uni):
     # treat values that are just 0 and 1 as categorical by default
     default_value_order = False
     desired_value_order = []
-    if type == "numeric" and (np.array_equal(values, [0, 1]) or np.array_equal(values, [1, 0])):
-        default_value_order = True
-        desired_value_order = ["0", "1"]
 
-    custom_value_order = st.checkbox("Custom label order?", key=f"value_order_{uni}", value=default_value_order)
-    if custom_value_order and type == "numeric":
-        st.warning("Warning: numeric variables will be treated as categorical variables")
-        type = "categorical"
-    
-    if custom_value_order:
-        options = get_formatted_values(values)
-        value_order = st.multiselect(label="Custom label order", options=options, default=desired_value_order, help="Order of the values in the unibar, from bottom to top.")
+    if type != "numeric":
+        st.checkbox(label="Categorical", value=True, disabled=True)
 
-        if len(value_order) < len(options):
-            st.error("Select all options to proceed.")
-
-        st.session_state.value_order[uni] = value_order
-        st.session_state.numerical_display_type[uni] = "rugplot"
-    
     if type == "numeric":
-        display_type = st.selectbox(label="display type", options=["box", "rugplot", "violin"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")
-        use_custom_levels = st.checkbox(label="Custom label levels?", key=f"custom_levels_{uni}")
-        if use_custom_levels:
-            levels = st.number_input(label="Num. levels (0 for None)", min_value=0, step=1, value=7, key=f"number_input_{uni}")
-            st.session_state.numerical_var_levels[uni] = levels
-        st.session_state.numerical_display_type[uni] = display_type
+        force_categorical = False
+        if (np.array_equal(values, [0, 1]) or np.array_equal(values, [1, 0])):
+            force_categorical = True
+        force_categorical = st.checkbox(label="Categorical", value=force_categorical)
+        if force_categorical:
+            desired_value_order = get_formatted_values(values)
+            st.session_state.value_order[uni] = desired_value_order
+            type = "categorical"
+
+    
+        if type == "numeric":
+            use_custom_levels = st.checkbox(label="Custom label levels?", key=f"custom_levels_{uni}")
+            if use_custom_levels:
+                levels = st.number_input(label="Num. levels (0 for None)", min_value=0, step=1, value=7, key=f"number_input_{uni}")
+                st.session_state.numerical_var_levels[uni] = levels 
+            uni_display_type = st.selectbox(label="display type", options=["box", "rugplot", "violin"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")
+            
+
+    if type != "numeric":
+        custom_value_order = st.checkbox("Custom label order?", key=f"value_order_{uni}")
+    
+        if custom_value_order:
+            options = get_formatted_values(values)
+            value_order = st.multiselect(label="Custom label order", options=options, help="Order of the values in the unibar, from bottom to top.")
+
+            if len(value_order) < len(options):
+                st.error("Select all options to proceed.")
+
+            st.session_state.value_order[uni] = value_order
+            type = "categorical"
+        
+        uni_display_type = st.selectbox(label="display type", options=["stacked bar", "bar chart"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")       
+    
+    st.session_state.display_type[uni] = uni_display_type
     
     custom_labels = st.checkbox(label="Custom label options?", key=f"label_options_{uni}")
     if custom_labels:
@@ -129,7 +142,7 @@ else:
 
         # manage session_state variables
         st.session_state.numerical_var_levels = {}
-        st.session_state.numerical_display_type = {}
+        st.session_state.display_type = {}
         st.session_state.label_options = {}
         st.session_state.value_order = {}
 
@@ -140,7 +153,7 @@ else:
             if type == "numeric" and (np.array_equal(values, [0, 1]) or np.array_equal(values, [1, 0])):
                 st.session_state.value_order[uni] = ["0", "1"]
             if type == "numeric":
-                st.session_state.numerical_display_type[uni] = "box"
+                st.session_state.display_type[uni] = "box"
 
 
         st.header("Advanced Settings")
@@ -267,13 +280,12 @@ else:
         
         # -------- PLOT GRAPH -----------
         if st.button("**Plot Hammock!**", type="primary", use_container_width=True):
-            st.write(st.session_state.value_order)
             with st.spinner("Plotting hammock... this may take a while"):
                 plot(
                     var=unibars,
                     value_order=st.session_state.value_order,
                     numerical_var_levels=st.session_state.numerical_var_levels,
-                    numerical_display_type=st.session_state.numerical_display_type,
+                    display_type=st.session_state.display_type,
                     missing=missing,
                     missing_placeholder=missing_placeholder if missing else None,
                     label=label,

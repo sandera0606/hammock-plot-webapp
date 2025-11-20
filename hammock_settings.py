@@ -38,13 +38,13 @@ def display_unibar_specific_settings(uni):
     desired_value_order = []
 
     if type != "numeric":
-        st.checkbox(label="Categorical", value=True, disabled=True)
+        st.checkbox(label="Categorical", value=True, disabled=True, key=f"categorical_{uni}")
 
     if type == "numeric":
         force_categorical = False
         if (np.array_equal(values, [0, 1]) or np.array_equal(values, [1, 0])):
             force_categorical = True
-        force_categorical = st.checkbox(label="Categorical", value=force_categorical)
+        force_categorical = st.checkbox(label="Categorical", value=force_categorical, key=f"force_categorical_{uni}")
         if force_categorical:
             desired_value_order = get_formatted_values(values)
             st.session_state.value_order[uni] = desired_value_order

@@ -53,6 +53,7 @@ def display_unibar_specific_settings(uni):
             st.error("Select all options to proceed.")
 
         st.session_state.value_order[uni] = value_order
+        st.session_state.numerical_display_type[uni] = "rugplot"
     
     if type == "numeric":
         display_type = st.selectbox(label="display type", options=["box", "rugplot", "violin"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")
@@ -266,6 +267,7 @@ else:
         
         # -------- PLOT GRAPH -----------
         if st.button("**Plot Hammock!**", type="primary", use_container_width=True):
+            st.write(st.session_state.value_order)
             with st.spinner("Plotting hammock... this may take a while"):
                 plot(
                     var=unibars,

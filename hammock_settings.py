@@ -16,6 +16,22 @@ import ast
 if "reset_counter" not in st.session_state:
     st.session_state.reset_counter = 0
 
+if "run_plot_soon" not in st.session_state:
+    st.session_state.run_plot_soon = False
+
+if "unibars" not in st.session_state:
+    st.session_state.unibars = []
+
+if "missing" not in st.session_state:
+    st.session_state.missing = False
+
+if "mode" not in st.session_state:
+    st.session_state.mode = "hammock"
+
+def run_plot_on_refresh():
+    if not st.session_state.run_plot_soon:
+        st.session_state.run_plot_soon = True
+
 def display_unibar_specific_settings(uni):
     st.markdown(
         f"""
@@ -105,35 +121,45 @@ else:
     st.sidebar.dataframe(st.session_state.df, hide_index=True) # put the dataframe in the sidebar
 
     unibars = st.multiselect(label = "Which variables do you want to plot?", options=list(st.session_state.df))
-    missing = st.checkbox(label="Plot missing values?")
     
-    if not unibars:
+    missing = st.checkbox(label="Plot missing values?")
+    if unibars != st.session_state.unibars or missing != st.session_state.missing:
+        run_plot_on_refresh()
+        st.session_state.unibars = unibars
+        st.session_state.missing=missing
+    
+    if not unibars or len(unibars) == 0:
         st.markdown(":gray[Select unibars to proceed]")
     else:
         container = st.container(border=True)
         with container:
             plotcol, customcol = adjustable_columns([2, 1], labels=["Graph", "Settings"])
             with customcol:
-                presets, highlight_settings, general, uni_spec = st.tabs(["Select Presets", "Highlight Settings", "Advanced Settings", "Unibar-specific"])
+                presets, highlight_settings, general, uni_spec = st.tabs(["Select Preset", "Highlight Settings", "Advanced Settings", "Unibar-specific"])
                 with presets:
                     st.header("Preset Setting Options")
-                    if "mode" not in st.session_state:
-                        st.session_state.mode = "hammock"
-                    if st.button("Hammock", type="primary" if st.session_state["mode"] == "hammock" else "secondary", use_container_width=True):
-                        st.session_state.mode = "hammock"
+                    st.text("Sets all settings to preset options. Refreshes the plot.")
+                    if st.button("Hammock", type="primary" if st.session_state["mode"] == "hammock" else "secondary", key=f"hammock_{st.session_state.reset_counter}", use_container_width=True):
+                        mode = "hammock"
+                        if mode != st.session_state.mode:
+                            run_plot_on_refresh()
+                            st.session_state.mode = mode
                         set_default_settings()
                         # st.session_state.reset_presets = True
                         # st.rerun()
 
-                    if st.button("Snapshot", type="primary" if st.session_state["mode"] == "snapshot" else "secondary", use_container_width=True):
-                        st.session_state.mode = "snapshot"
+                    if st.button("Snapshot", type="primary" if st.session_state["mode"] == "snapshot" else "secondary", key=f"snapshot{st.session_state.reset_counter}", use_container_width=True):
+                        mode = "snapshot"
+                        if mode != st.session_state.mode:
+                            run_plot_on_refresh()
+                            st.session_state.mode = mode
                         set_snapshot_settings()
                         # st.session_state.reset_presets = True
                         # st.rerun()
 
                     # load default settings
-                    height = Defaults.HEIGHT
-                    width = max(Defaults.WIDTH, len(unibars) * 4/3)
+                    fig_height = Defaults.HEIGHT
+                    fig_width = max(Defaults.WIDTH, len(unibars) * 4/3)
                     default_color = Defaults.DEFAULT_COLOR
                     alpha = Defaults.ALPHA
                     label = True
@@ -165,7 +191,7 @@ else:
                 # ------ HIGHLIGHT SETTINGS ---------
                 with highlight_settings:
                     st.header("Highlighting")
-                    highlight = st.checkbox("Enable highlighting?")
+                    highlight = st.checkbox("Enable highlighting?", value=False, key=f"highlight_{st.session_state.reset_counter}")
                     if highlight:
                         hi_var = st.selectbox(label="Select the variable to highlight", options=list(st.session_state.df))
                         subcols = st.columns(2)
@@ -205,9 +231,9 @@ else:
                     # ------------ GENERAL SETTINGS ----------------------
                     st.subheader("General")
                     subcol1, subcol2 = st.columns([1, 1])
-                    height = subcol1.number_input(label="Height", value=height, step=0.5, key=f"height_{st.session_state.reset_counter}",
+                    fig_height = subcol1.number_input(label="Height", value=fig_height, step=0.5, key=f"height_{st.session_state.reset_counter}",
                                                 help="Height of the plot")
-                    width = subcol2.number_input(label="Width", value=width, step=0.5, key=f"width_{st.session_state.reset_counter}",
+                    fig_width = subcol2.number_input(label="Width", value=fig_width, step=0.5, key=f"width_{st.session_state.reset_counter}",
                                                 help="Width of the plot")
                     
                     min_bar_height = st.number_input(label="Minimum bar height",
@@ -271,46 +297,51 @@ else:
                     for unibar in unibars:
                         display_unibar_specific_settings(unibar)
             
+            def run_plot():
+                with st.spinner("Plotting hammock... this may take a while"):
+                    plot(
+                        var=unibars,
+                        value_order=st.session_state.value_order,
+                        numerical_var_levels=st.session_state.numerical_var_levels,
+                        display_type=st.session_state.display_type,
+                        missing=missing,
+                        missing_placeholder=missing_placeholder if missing else None,
+                        label=label,
+                        unibar=unibar,
+
+                        hi_var=hi_var if highlight else None,
+                        hi_value=hi_value if highlight else None,
+                        hi_box=hi_box if highlight else None,
+                        hi_missing=hi_missing if highlight else False,
+                        colors=hi_colors if highlight else [],
+                        default_color=default_color,
+                        uni_vfill=uni_vfill / 100,
+                        connector_fraction=connector_fraction / 100,
+                        connector_color = connector_color,
+                        uni_hfill=uni_hfill / 100,
+                        label_options=st.session_state.label_options,
+                        height=fig_height,
+                        width=fig_width,
+                        min_bar_height=min_bar_height,
+                        alpha=alpha / 100,
+                        shape=shape,
+                        same_scale=same_scale,
+                        violin_bw_method=violin_bw_method,
+                    )
             with plotcol:
                 # -------- PLOT GRAPH -----------
-                if st.button("**Plot Hammock!**", type="primary", use_container_width=True):
-                    with st.spinner("Plotting hammock... this may take a while"):
-                        plot(
-                            var=unibars,
-                            value_order=st.session_state.value_order,
-                            numerical_var_levels=st.session_state.numerical_var_levels,
-                            display_type=st.session_state.display_type,
-                            missing=missing,
-                            missing_placeholder=missing_placeholder if missing else None,
-                            label=label,
-                            unibar=unibar,
-
-                            hi_var=hi_var if highlight else None,
-                            hi_value=hi_value if highlight else None,
-                            hi_box=hi_box if highlight else None,
-                            hi_missing=hi_missing if highlight else False,
-                            colors=hi_colors if highlight else [],
-                            default_color=default_color,
-                            uni_vfill=uni_vfill / 100,
-                            connector_fraction=connector_fraction / 100,
-                            connector_color = connector_color,
-                            uni_hfill=uni_hfill / 100,
-                            label_options=st.session_state.label_options,
-                            height=height,
-                            width=width,
-                            min_bar_height=min_bar_height,
-                            alpha=alpha / 100,
-                            shape=shape,
-                            same_scale=same_scale,
-                            violin_bw_method=violin_bw_method,
-                        )
+                if st.session_state.run_plot_soon:
+                    st.session_state.run_plot_soon = False
+                    run_plot()
+                if st.button("**Apply Custom Settings**", type="primary", use_container_width=True, help="Refresh when you update settings"):
+                    run_plot()
                 if "fig" in st.session_state:
                     if not unibars:
                         del st.session_state["fig"]
                         del st.session_state["buf"]
                         st.rerun()
-                    st.header("Your plot")
-                    st.pyplot(st.session_state.fig) # display fig in streamlit
+                    st.image(st.session_state.buf, use_container_width=True) # display fig in streamlit
+                    
                     subcol1, subcol2 = st.columns(2)
                     with subcol1:
                         st.download_button(

@@ -93,6 +93,7 @@ class Defaults:
     ALPHA=70
     MIN_BAR_HEIGHT: float = 0.15
     DISPLAY_TYPE_INDEX: int = 0
+    HIGHLIGHT = False
 
 def set_default_settings():
     st.session_state.reset_counter = 1 if st.session_state.reset_counter == 0 else 0

@@ -198,8 +198,10 @@ else:
                         hi_options = ["specific labels", "expression"]
                         hi_type = subcols[0].radio("Highlight type", options=hi_options)
                         hi_box = subcols[1].radio("Highlight box", options=["side-by-side", "stacked"])
+
+                        hi_label_options = get_formatted_values(st.session_state.df[hi_var].dropna().unique())
                         if hi_type == hi_options[0]: # highlighting specific labels
-                            hi_value = st.multiselect(label="Select labels to highlight", options=(st.session_state.df[hi_var].dropna().unique()))
+                            hi_value = st.multiselect(label="Select labels to highlight", options=hi_label_options)
                         else:
                             hi_value = st.text_input(label="Expression (regex/range) to highlight", help="e.g. x>1 and (x>5 or x<4)")
                             if hi_value != "" and not validate_expression(hi_value):

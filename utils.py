@@ -192,15 +192,16 @@ def get_formatted_label(datatype, value):
 
 def get_formatted_values(raw_values):
     dtype = raw_values.dtype
+    non_na = raw_values[pd.notna(raw_values)]
     if pd.api.types.is_integer_dtype(dtype):
         dtype = np.integer
     elif pd.api.types.is_float_dtype(dtype):
         dtype = np.floating
-        if (raw_values == raw_values.astype(int)).all():
+        if (non_na == non_na.astype(int)).all():
             dtype = np.integer
         else:
             dtype = np.floating
     elif pd.api.types.is_categorical_dtype(dtype) or pd.api.types.is_string_dtype(dtype):
         dtype = np.str_
     
-    return [get_formatted_label(dtype, value) for value in raw_values]
+    return [get_formatted_label(dtype, value) for value in non_na]

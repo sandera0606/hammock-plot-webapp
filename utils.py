@@ -88,8 +88,8 @@ class Defaults:
     uni_vfill = 8
     uni_hfill = 30
     CONNECTOR_FRACTION = 100
-    DEFAULT_COLOR="#a6cee3"
-    HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
+    DEFAULT_COLOR="#beaed4"
+    HI_COLORS=[ "#fdc086",  "#386cb0", "#7fc97f", "#f0027f"]
     ALPHA=70
     MIN_BAR_HEIGHT: float = 0.15
     DISPLAY_TYPE_INDEX: int = 0
@@ -104,6 +104,8 @@ def set_default_settings():
     Defaults.CONNECTOR_FRACTION = 100
     Defaults.DEFAULT_COLOR="#a6cee3"
     Defaults.HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
+    # COLORS: list = [ "#fdc086",  "#386cb0", "#7fc97f", "#f0027f"]
+    # DEFAULT_COLOR: str = "#beaed4"
     Defaults.ALPHA=70
     Defaults.MIN_BAR_HEIGHT = 0.15
     st.rerun()

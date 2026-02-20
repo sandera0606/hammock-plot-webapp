@@ -129,7 +129,7 @@ else:
         st.session_state.missing=missing
     
     if not unibars or len(unibars) == 0:
-        st.markdown(":gray[Select unibars to proceed]")
+        st.markdown(":gray[Select variables to proceed]")
     else:
         container = st.container(border=True)
         with container:

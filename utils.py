@@ -102,8 +102,8 @@ def set_default_settings():
     Defaults.uni_vfill = 8
     Defaults.uni_hfill = 30
     Defaults.CONNECTOR_FRACTION = 100
-    Defaults.DEFAULT_COLOR="#a6cee3"
-    Defaults.HI_COLORS=["#e31a1c", "#fb9a99", "#33a02c", "#b2df8a", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#1f78b4"]
+    Defaults.DEFAULT_COLOR="#beaed4"
+    Defaults.HI_COLORS=[ "#fdc086",  "#386cb0", "#7fc97f", "#f0027f"]
     # COLORS: list = [ "#fdc086",  "#386cb0", "#7fc97f", "#f0027f"]
     # DEFAULT_COLOR: str = "#beaed4"
     Defaults.ALPHA=70

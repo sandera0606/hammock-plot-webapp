@@ -112,7 +112,7 @@ def set_default_settings():
 
 def set_snapshot_settings():
     st.session_state.reset_counter = 1 if st.session_state.reset_counter == 0 else 0
-    Defaults.uni_vfill = 99
+    Defaults.uni_vfill = 95
     Defaults.uni_hfill = 85
     Defaults.CONNECTOR_FRACTION = 0
     st.rerun()

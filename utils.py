@@ -13,6 +13,7 @@ def prep_data_for_download():
 
 def plot(# General
             var,
+            weights,
             value_order,
             numerical_var_levels,
             display_type,
@@ -49,6 +50,7 @@ def plot(# General
     try:
         ax = hammock.plot(
             var=var,
+            weights=weights,
             value_order=value_order,
             numerical_var_levels=numerical_var_levels,
             display_type=display_type,

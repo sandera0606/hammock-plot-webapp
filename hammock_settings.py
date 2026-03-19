@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 from streamlit_adjustable_columns import adjustable_columns
+import pandas as pd
 
 from utils import (
     Defaults,
@@ -127,6 +128,25 @@ else:
         run_plot_on_refresh()
         st.session_state.unibars = unibars
         st.session_state.missing=missing
+    
+    use_weights = st.checkbox(label="Use weights?")
+    weights = None
+
+    if use_weights:
+        df = st.session_state.df
+        valid_columns = [
+            col for col in df.columns
+            if pd.api.types.is_numeric_dtype(df[col]) and not df[col].isna().any() and not col in unibars
+        ]
+
+        if len(valid_columns) == 0:
+            st.warning("No valid weight columns (must be numeric with no missing values).")
+        else:
+            weights = st.selectbox(
+                label="Select weight column",
+                options=valid_columns
+            )
+
     
     if not unibars or len(unibars) == 0:
         st.markdown(":gray[Select variables to proceed]")
@@ -303,6 +323,7 @@ else:
                 with st.spinner("Plotting hammock... this may take a while"):
                     plot(
                         var=unibars,
+                        weights=weights,
                         value_order=st.session_state.value_order,
                         numerical_var_levels=st.session_state.numerical_var_levels,
                         display_type=st.session_state.display_type,

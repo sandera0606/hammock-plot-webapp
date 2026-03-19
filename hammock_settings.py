@@ -323,7 +323,7 @@ else:
                 with st.spinner("Plotting hammock... this may take a while"):
                     plot(
                         var=unibars,
-                        weights=weights,
+                        weights=weights if use_weights else None,
                         value_order=st.session_state.value_order,
                         numerical_var_levels=st.session_state.numerical_var_levels,
                         display_type=st.session_state.display_type,

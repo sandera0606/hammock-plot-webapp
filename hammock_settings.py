@@ -142,7 +142,7 @@ else:
         df = st.session_state.df
         valid_columns = [
             col for col in df.columns
-            if pd.api.types.is_numeric_dtype(df[col]) and not col in unibars and not df[col].isna().any() and not (df[col] < 0).any()
+            if pd.api.types.is_numeric_dtype(df[col]) and not col in unibars and not df[col].isna().any() and not (df[col] <= 0).any()
         ]
 
         if len(valid_columns) == 0:

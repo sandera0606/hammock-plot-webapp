@@ -47,42 +47,42 @@ def plot(# General
             violin_bw_method):
     hammock = hammock_plot.Hammock(data_df=st.session_state.df)
 
-    try:
-        ax = hammock.plot(
-            var=var,
-            weights=weights,
-            value_order=value_order,
-            numerical_var_levels=numerical_var_levels,
-            display_type=display_type,
-            missing=missing,
-            missing_placeholder=missing_placeholder,
-            label=label,
-            unibar=unibar,
-            hi_var=hi_var,
-            hi_value=hi_value,
-            hi_box=hi_box,
-            hi_missing=hi_missing,
-            colors=colors,
-            default_color=default_color,
-            uni_vfill=uni_vfill,
-            connector_fraction=connector_fraction,
-            connector_color=connector_color,
-            uni_hfill=uni_hfill,
-            label_options=label_options,
-            height=height,
-            width=width,
-            alpha=alpha,
-            min_bar_height=min_bar_height,
-            shape=shape,
-            same_scale=same_scale,
-            display_figure=True,
-            save_path=None,
-            violin_bw_method=violin_bw_method,
-        )
-        st.session_state.fig = ax.get_figure()
-        prep_data_for_download()
-    except Exception as e:
-        st.error(str(e))
+    # try:
+    ax = hammock.plot(
+        var=var,
+        weights=weights,
+        value_order=value_order,
+        numerical_var_levels=numerical_var_levels,
+        display_type=display_type,
+        missing=missing,
+        missing_placeholder=missing_placeholder,
+        label=label,
+        unibar=unibar,
+        hi_var=hi_var,
+        hi_value=hi_value,
+        hi_box=hi_box,
+        hi_missing=hi_missing,
+        colors=colors,
+        default_color=default_color,
+        uni_vfill=uni_vfill,
+        connector_fraction=connector_fraction,
+        connector_color=connector_color,
+        uni_hfill=uni_hfill,
+        label_options=label_options,
+        height=height,
+        width=width,
+        alpha=alpha,
+        min_bar_height=min_bar_height,
+        shape=shape,
+        same_scale=same_scale,
+        display_figure=True,
+        save_path=None,
+        violin_bw_method=violin_bw_method,
+    )
+    st.session_state.fig = ax.get_figure()
+    prep_data_for_download()
+    # except Exception as e:
+    #     st.error(str(e))
 
 class Defaults:
     HEIGHT = 10.0

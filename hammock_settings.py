@@ -55,8 +55,9 @@ def display_unibar_specific_settings(uni):
     type = get_uni_type(uni)
 
     st.badge(type)
-    values = st.session_state.df[uni].dropna().unique()
-
+    key_name = f"col_{uni}_uniquevals"
+    values = st.session_state[key_name]
+    
     # treat values that are just 0 and 1 as categorical by default
     default_value_order = False
     desired_value_order = []
@@ -134,58 +135,10 @@ else:
         run_plot_on_refresh()
         st.session_state.unibars = unibars
         st.session_state.missing=missing
-    
-    use_weights = st.checkbox(label="Use weights?")
-    weights = None
-    
-    if use_weights:
-        df = st.session_state.df
-        valid_columns = [
-            col for col in df.columns
-            if pd.api.types.is_numeric_dtype(df[col]) and not col in unibars and not df[col].isna().any() and not (df[col] <= 0).any()
-        ]
 
-        if len(valid_columns) == 0:
-            st.warning("The weight variable is not valid. It must be numeric without missing values.")
-        else:
-            weights = st.selectbox(
-                label="Select weight variable",
-                options=valid_columns,
-                help="A variable that acts like a weight for a data entry. Cannot have negative or missing values."
-            )
-            if st.session_state.weights != weights:
-                st.session_state.weights = weights
-                run_plot_on_refresh()
-
-    if st.session_state.use_weights != use_weights:
-        st.session_state.use_weights = use_weights
-        run_plot_on_refresh()
-
-    
     if not unibars or len(unibars) == 0:
         st.markdown(":gray[Select variables to proceed]")
     else:
-        cols = st.columns(2)
-        with cols[0]:
-            if st.button("Plot Hammock", type="primary" if st.session_state["mode"] == "hammock" else "secondary", key=f"hammock_{st.session_state.reset_counter}", use_container_width=True):
-                mode = "hammock"
-                if mode != st.session_state.mode:
-                    run_plot_on_refresh()
-                    st.session_state.mode = mode
-                set_default_settings()
-                # st.session_state.reset_presets = True
-                # st.rerun()
-        
-        with cols[1]:
-            if st.button("Plot Snapshot", type="primary" if st.session_state["mode"] == "snapshot" else "secondary", key=f"snapshot{st.session_state.reset_counter}", use_container_width=True):
-                mode = "snapshot"
-                if mode != st.session_state.mode:
-                    run_plot_on_refresh()
-                    st.session_state.mode = mode
-                set_snapshot_settings()
-                # st.session_state.reset_presets = True
-                # st.rerun()
-
         # load default settings
         fig_height = Defaults.HEIGHT
         fig_width = max(Defaults.WIDTH, len(unibars) * 4/3)
@@ -212,7 +165,8 @@ else:
         # initialize numerical display type defaults
         for uni in unibars:
             type = get_uni_type(uni)
-            values = st.session_state.df[uni].dropna().unique()
+            key_name = f"col_{uni}_uniquevals"
+            values = st.session_state[key_name]
             if type == "numeric" and (np.array_equal(values, [0, 1]) or np.array_equal(values, [1, 0])):
                 st.session_state.value_order[uni] = ["0", "1"]
             if type == "numeric":
@@ -223,27 +177,51 @@ else:
         with container:
             plotcol, customcol = adjustable_columns([2, 1], labels=["Graph", "Settings"])
             with customcol:
-                highlight_settings, general, uni_spec = st.tabs(["Highlighting", "Advanced", "Unibar-Specific"])
-                # with presets:
-                #     st.header("Preset Setting Options")
-                #     st.text("Sets all settings to preset options. Refreshes the plot.")
-                #     if st.button("Hammock", type="primary" if st.session_state["mode"] == "hammock" else "secondary", key=f"hammock_{st.session_state.reset_counter}", use_container_width=True):
-                #         mode = "hammock"
-                #         if mode != st.session_state.mode:
-                #             run_plot_on_refresh()
-                #             st.session_state.mode = mode
-                #         set_default_settings()
-                #         # st.session_state.reset_presets = True
-                #         # st.rerun()
+                presets, weight_settings, highlight_settings, general, uni_spec = st.tabs(["Preset Settings", "Weights", "Highlighting", "Advanced", "Unibar-Specific"])
+                with presets:
+                    st.header("Preset Setting Options")
+                    st.text("Sets all settings to preset options. Refreshes the plot.")
+                    if st.button("Hammock Plot", type="primary" if st.session_state["mode"] == "hammock" else "secondary", key=f"hammock_{st.session_state.reset_counter}", width='stretch'):
+                        mode = "hammock"
+                        if mode != st.session_state.mode:
+                            run_plot_on_refresh()
+                            st.session_state.mode = mode
+                        set_default_settings()
+                        # st.session_state.reset_presets = True
+                        # st.rerun()
 
-                #     if st.button("Snapshot", type="primary" if st.session_state["mode"] == "snapshot" else "secondary", key=f"snapshot{st.session_state.reset_counter}", use_container_width=True):
-                #         mode = "snapshot"
-                #         if mode != st.session_state.mode:
-                #             run_plot_on_refresh()
-                #             st.session_state.mode = mode
-                #         set_snapshot_settings()
-                #         # st.session_state.reset_presets = True
-                #         # st.rerun()
+                    if st.button("Snapshot Plot", type="primary" if st.session_state["mode"] == "snapshot" else "secondary", key=f"snapshot{st.session_state.reset_counter}", width='stretch', help="Hammock plot with unibars only (without the connectors)"):
+                        mode = "snapshot"
+                        if mode != st.session_state.mode:
+                            run_plot_on_refresh()
+                            st.session_state.mode = mode
+                        set_snapshot_settings()
+                        # st.session_state.reset_presets = True
+                        # st.rerun()
+                # ------ WEIGHT SETTINGS --------
+                with weight_settings:
+                    use_weights = st.checkbox(label="Use weights?")
+                    weights = None
+                    
+                    if use_weights:
+                        df = st.session_state.df
+                        valid_columns = [var for var in st.session_state.possible_weightvars if var not in unibars]
+
+                        if len(valid_columns) == 0:
+                            st.warning("The weight variable is not valid. It must be numeric without missing values.")
+                        else:
+                            weights = st.selectbox(
+                                label="Select weight variable",
+                                options=valid_columns,
+                                help="A variable that acts like a weight for a data entry. Cannot have negative or missing values."
+                            )
+                            if st.session_state.weights != weights:
+                                st.session_state.weights = weights
+                                run_plot_on_refresh()
+
+                    if st.session_state.use_weights != use_weights:
+                        st.session_state.use_weights = use_weights
+                        run_plot_on_refresh()
                 # ------ HIGHLIGHT SETTINGS ---------
                 with highlight_settings:
                     st.header("Highlighting")
@@ -255,7 +233,9 @@ else:
                         hi_type = subcols[0].radio("Highlight type", options=hi_options)
                         hi_box = subcols[1].radio("Highlight box", options=["side-by-side", "stacked"])
 
-                        hi_label_options = get_formatted_values(st.session_state.df[hi_var].dropna().unique())
+                        key_name = f"col_{hi_var}_uniquevals"
+                        hi_values = st.session_state[key_name]
+                        hi_label_options = get_formatted_values(hi_values)
                         if hi_type == hi_options[0]: # highlighting specific labels
                             hi_value = st.multiselect(label="Select labels to highlight", options=hi_label_options)
                         else:
@@ -400,7 +380,9 @@ else:
                     st.image(st.session_state.buf, use_container_width=True) # display fig in streamlit
                     
                     if st.button("**Apply Custom Settings**", type="primary", use_container_width=True, help="Refresh when you update settings"):
-                        run_plot()
+                        # run_plot()
+                        st.session_state.run_plot_soon = True
+                        st.rerun()
                     subcol1, subcol2 = st.columns(2)
                     with subcol1:
                         st.download_button(

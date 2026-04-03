@@ -19,6 +19,17 @@ def rename_column():
         st.session_state.df = df
         st.rerun()
 
+def update_uniquevals_weightvars():
+    st.session_state.possible_weightvars = set()
+    for col in st.session_state.df.columns:
+        key_name = f"col_{col}_uniquevals"
+        st.session_state[key_name] = st.session_state.df[col].unique()
+
+        column = st.session_state.df[col]
+        
+        if pd.api.types.is_numeric_dtype(column) and not column.isna().any() and not (column <= 0).any():
+            st.session_state.possible_weightvars.add(col)
+
 @st.dialog("Choose Labels to Replace")
 def replace_column_values():
     col =  st.selectbox(label="Replace labels from column:", options=list(st.session_state.df))
@@ -34,6 +45,7 @@ if "df" not in st.session_state:
     if st.button(label="Use [Palmer penguins data](https://allisonhorst.github.io/palmerpenguins/)"):
         df = pd.read_csv("./data/palmer_penguins.csv")
         st.session_state.df = df
+        update_uniquevals_weightvars()
         st.rerun()
     else:
         uploaded_file = st.file_uploader(
@@ -45,7 +57,11 @@ if "df" not in st.session_state:
             df = pd.read_csv(uploaded_file)
             
             # Store the DataFrame in session_state
-            st.session_state.df = df
+            if "df" not in st.session_state or st.session_state.df != df:
+                st.session_state.df = df
+                update_uniquevals_weightvars()
+            
+            
             st.rerun()
 else:
     st.dataframe(st.session_state.df)
@@ -54,9 +70,11 @@ else:
 
     if col1.button("Rename Column", use_container_width=True):
         rename_column()
+        update_uniquevals_weightvars()
 
     if col2.button("Replace Labels", use_container_width=True):
         replace_column_values()
+        update_uniquevals_weightvars()
 
     # allow user to clear data
     with col3:

@@ -332,8 +332,8 @@ else:
                     if violin_bw_method == "custom float":
                         violin_bw_method = st.number_input("custom float", min_value=0.0, value=0.5, step=0.1)
                     
-                    for unibar in unibars:
-                        display_unibar_specific_settings(unibar)
+                    for uni in unibars:
+                        display_unibar_specific_settings(uni)
             
             def run_plot():
                 with st.spinner("Plotting hammock... this may take a while"):

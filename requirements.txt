@@ -1,3 +1,4 @@
 streamlit
 git+https://github.com/TianchengY/hammock_plot.git
 streamlit_adjustable_columns
+scipy

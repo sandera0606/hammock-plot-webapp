@@ -177,7 +177,7 @@ else:
         with container:
             plotcol, customcol = adjustable_columns([2, 1], labels=["Graph", "Settings"])
             with customcol:
-                presets, weight_settings, highlight_settings, general, uni_spec = st.tabs(["Preset Settings", "Weights", "Highlighting", "Advanced", "Unibar-Specific"])
+                presets, highlight_settings, uni_spec, general, weight_settings = st.tabs(["Preset Settings", "Highlighting", "Unibar-Specific", "Advanced", "Weights"])
                 with presets:
                     st.header("Preset Setting Options")
                     st.text("Sets all settings to preset options. Refreshes the plot.")

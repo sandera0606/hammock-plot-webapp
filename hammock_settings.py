@@ -81,7 +81,7 @@ def display_unibar_specific_settings(uni):
             if use_custom_levels:
                 levels = st.number_input(label="Num. levels (0 for None)", min_value=0, step=1, value=7, key=f"number_input_{uni}")
                 st.session_state.numerical_var_levels[uni] = levels 
-            uni_display_type = st.selectbox(label="display type", options=["box", "rugplot", "violin"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")
+            uni_display_type = st.selectbox(label="display type", options=["box", "rug", "violin"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")
             
 
     if type != "numeric":
@@ -97,7 +97,7 @@ def display_unibar_specific_settings(uni):
             st.session_state.value_order[uni] = value_order
             type = "categorical"
         
-        uni_display_type = st.selectbox(label="display type", options=["stacked bar", "bar chart"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")       
+        uni_display_type = st.selectbox(label="display type", options=["stacked_bar", "bar"], index=Defaults.DISPLAY_TYPE_INDEX, key=f"display_type_{uni}")       
     
     st.session_state.display_type[uni] = uni_display_type
     

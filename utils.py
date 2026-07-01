@@ -38,7 +38,8 @@ def plot(# General
             label_options,
             height,
             width,
-            min_bar_height,
+            min_bar_height_unibar,
+            min_bar_height_connectors,
             alpha,
 
             # Other
@@ -72,7 +73,8 @@ def plot(# General
         height=height,
         width=width,
         alpha=alpha,
-        min_bar_height=min_bar_height,
+        min_bar_height_unibar=min_bar_height_unibar,
+        min_bar_height_connectors=min_bar_height_connectors,
         shape=shape,
         same_scale=same_scale,
         display_figure=True,
@@ -93,7 +95,8 @@ class Defaults:
     DEFAULT_COLOR="#beaed4"
     HI_COLORS=[ "#fdc086",  "#386cb0", "#7fc97f", "#f0027f"]
     ALPHA=70
-    MIN_BAR_HEIGHT: float = 0.15
+    MIN_BAR_HEIGHT_UNIBAR: float = 0.15
+    MIN_BAR_HEIGHT_CONNECTORS: float = 0.12
     DISPLAY_TYPE_INDEX: int = 0
     HIGHLIGHT = False
 
@@ -109,7 +112,8 @@ def set_default_settings():
     # COLORS: list = [ "#fdc086",  "#386cb0", "#7fc97f", "#f0027f"]
     # DEFAULT_COLOR: str = "#beaed4"
     Defaults.ALPHA=70
-    Defaults.MIN_BAR_HEIGHT = 0.15
+    Defaults.MIN_BAR_HEIGHT_UNIBAR = 0.15
+    Defaults.MIN_BAR_HEIGHT_CONNECTORS = 0.12
     st.rerun()
 
 def set_snapshot_settings():

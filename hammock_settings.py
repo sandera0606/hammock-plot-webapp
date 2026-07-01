@@ -147,7 +147,8 @@ else:
         label = True
         unibar = True
         missing_placeholder = "missing"
-        min_bar_height = Defaults.MIN_BAR_HEIGHT
+        min_bar_height_unibar = Defaults.MIN_BAR_HEIGHT_UNIBAR
+        min_bar_height_connectors = Defaults.MIN_BAR_HEIGHT_CONNECTORS
         uni_vfill = Defaults.uni_vfill
         uni_hfill = Defaults.uni_hfill
         connector_fraction = Defaults.CONNECTOR_FRACTION
@@ -274,10 +275,15 @@ else:
                     fig_width = subcol2.number_input(label="Width", value=fig_width, step=0.5, key=f"width_{st.session_state.reset_counter}",
                                                 help="Width of the plot")
                     
-                    min_bar_height = st.number_input(label="Minimum bar height",
-                                                        value=min_bar_height,
-                                                        key=f"min_bar_height_{st.session_state.reset_counter}",
-                                                        help="Bars representing only a tiny fraction of the data may be so narrow that they are invisible in a plot. This parameter ensures that no bars can be thinner than the minimum.")
+                    subcol1, subcol2 = st.columns([1, 1])
+                    min_bar_height_unibar = subcol1.number_input(label="Minimum unibar height",
+                                                        value=min_bar_height_unibar,
+                                                        key=f"min_bar_height_unibar_{st.session_state.reset_counter}",
+                                                        help="Unibars representing only a tiny fraction of the data may be so narrow that they are invisible in a plot. This parameter ensures that no unibars can be thinner than the minimum.")
+                    min_bar_height_connectors = subcol2.number_input(label="Minimum connector height",
+                                                        value=min_bar_height_connectors,
+                                                        key=f"min_bar_height_connectors_{st.session_state.reset_counter}",
+                                                        help="Connectors representing only a tiny fraction of the data may be so narrow that they are invisible in a plot. This parameter ensures that no connectors can be thinner than the minimum.")
 
                     subcol1, subcol2 = st.columns([1, 1])
                     default_color = subcol1.color_picker(label="Default colour", value=default_color, key=f"default_color_{st.session_state.reset_counter}",
@@ -361,7 +367,8 @@ else:
                         label_options=st.session_state.label_options,
                         height=fig_height,
                         width=fig_width,
-                        min_bar_height=min_bar_height,
+                        min_bar_height_unibar=min_bar_height_unibar,
+                        min_bar_height_connectors=min_bar_height_connectors,
                         alpha=alpha / 100,
                         shape=shape,
                         same_scale=same_scale,
